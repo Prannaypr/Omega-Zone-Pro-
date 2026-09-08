@@ -600,7 +600,7 @@
 <!-- Left: Image & Colors -->
 <div class="p-4 md:w-[60%] space-y-6">
 <div class="relative w-full aspect-[4/5] bg-blue-50/30 dark:bg-slate-800/30 rounded-[32px] border border-blue-100 dark:border-white/5 flex items-center justify-center overflow-hidden shadow-2xl">
-<img :src="getProductImage(selectedProductModel, selectedColor)" @error="handleProductImageError($event, selectedProductModel, selectedColor)" class="product-color-image relative z-10 w-full h-full object-contain transition-all duration-700 hover:scale-105"/>
+<img :src="getProductImage(selectedProductModel, selectedColor)" @error="handleProductImageError($event, selectedProductModel, selectedColor)" class="product-color-image relative z-10 w-full h-full object-contain transition-all duration-700 hover:scale-105" @load="$event.target.style.display='block'; $event.target.dataset.imageAttempt='0'"/>
 </div>
 <div class="flex justify-center flex-wrap gap-2">
 <template :key="color" x-for="color in catalog[selectedProductModel]?.colors">
@@ -1434,7 +1434,9 @@
                 },
 
                 productImageCandidatesFor(modelName, colorName = 'Default') {
-                    const base = './' + this.imageFolder + '/';
+                    // Keep the IMAGE path relative to this HTML file so it works on
+                    // GitHub Pages, local hosting and Android WebView.
+                    const base = 'IMAGE/';
                     const mapped = this.productImageMap?.[modelName]?.[colorName];
                     if (mapped) return [base + mapped];
 
@@ -1464,7 +1466,7 @@
                     if (!this.productImageCache[modelName]) this.productImageCache[modelName] = {};
                     const mapped = this.productImageMap?.[modelName]?.[colorName];
                     if (mapped) {
-                        this.productImageCache[modelName][colorName] = './' + this.imageFolder + '/' + mapped;
+                        this.productImageCache[modelName][colorName] = 'IMAGE/' + mapped;
                     }
                 },
 
@@ -1472,7 +1474,8 @@
                     const mapped = this.productImageMap?.[modelName]?.[colorName];
                     if (mapped && event.target.dataset.imageErrorRetried !== '1') {
                         event.target.dataset.imageErrorRetried = '1';
-                        event.target.src = './' + this.imageFolder + '/' + mapped;
+                        event.target.src = 'IMAGE/' + mapped + '?v=2';
+                        event.target.style.display = 'block';
                         return;
                     }
                     this.cycleProductImage(event, modelName, colorName);
@@ -1482,6 +1485,9 @@
                     const model = this.catalog[modelName];
                     if (!model) return '';
                     const color = colorName || (model.colors || [])[0] || 'Default';
+                    // Deterministic color mapping for the supplied IMAGE folder.
+                    const mapped = this.productImageMap?.[modelName]?.[color];
+                    if (mapped) return 'IMAGE/' + mapped;
                     const cached = this.productImageCache?.[modelName]?.[color];
                     if (cached) return cached;
                     const candidates = colorName
@@ -1492,7 +1498,7 @@
 
                 getCardImageCandidates(modelName) {
                     const mapped = this.productImageMap?.[modelName];
-                    if (mapped) return Object.values(mapped).map(file => './' + this.imageFolder + '/' + file);
+                    if (mapped) return Object.values(mapped).map(file => 'IMAGE/' + file);
                     const allColors = ['Default', ...this.productColorCandidates];
                     return [...new Set(allColors.flatMap(color =>
                         this.productImageCandidatesFor(modelName, color)
@@ -1516,7 +1522,7 @@
                     if (mappedColors) {
                         const found = [];
                         for (const [color, file] of Object.entries(mappedColors)) {
-                            const url = './' + this.imageFolder + '/' + file;
+                            const url = 'IMAGE/' + file;
                             if (await this.imageExists(url)) {
                                 this.productImageCache[modelName][color] = url;
                                 found.push(color);
@@ -1563,12 +1569,15 @@
                     const candidates = colorName
                         ? this.productImageCandidatesFor(modelName, colorName)
                         : this.getCardImageCandidates(modelName);
+
                     if (attempted + 1 < candidates.length) {
                         img.dataset.imageAttempt = String(attempted + 1);
-                        img.src = candidates[attempted + 1];
+                        img.style.display = 'block';
+                        img.src = candidates[attempted + 1] + (candidates[attempted + 1].includes('?') ? '' : '?v=2');
                     } else {
-                        img.style.display = 'none';
-                        img.dataset.imageAttempt = '0';
+                        // Do not leave the image element hidden. A broken path should
+                        // be visible while the next candidate is being resolved.
+                        img.style.display = 'block';
                     }
                 },
 
