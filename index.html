@@ -437,6 +437,18 @@
 </button>
 </template>
 </div>
+
+<!-- Product RAM / ROM Filters -->
+<div class="grid grid-cols-2 gap-2">
+<select x-model="productRamFilter" class="w-full py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-lg text-[9px] font-bold focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer dark:bg-white/5 dark:border-white/10 dark:text-white transition-all appearance-none">
+<option value="All">All RAM</option>
+<option value="4GB">4GB</option><option value="6GB">6GB</option><option value="8GB">8GB</option><option value="12GB">12GB</option><option value="16GB">16GB</option>
+</select>
+<select x-model="productRomFilter" class="w-full py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-lg text-[9px] font-bold focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer dark:bg-white/5 dark:border-white/10 dark:text-white transition-all appearance-none">
+<option value="All">All ROM</option>
+<option value="64GB">64GB</option><option value="128GB">128GB</option><option value="256GB">256GB</option><option value="512GB">512GB</option><option value="1TB">1TB</option>
+</select>
+</div>
 </div>
 </section>
 </div>
@@ -1596,13 +1608,17 @@
                         const matchesSearch = name.toLowerCase().includes(this.productSearchQuery.toLowerCase());
                         const matchesSeries = this.productSeriesFilter === 'All' || model.series === this.productSeriesFilter;
 
-                        // Check performance and design strings for RAM/ROM
+                        // Search both catalog specs and model performance/design text.
+                        // This supports both "8+128GB" and "8GB RAM + 128GB ROM".
                         const perfString = (model.performance || []).join(' ') + ' ' + (model.design || []).join(' ');
-                        const ramRegex = new RegExp('\\b' + this.productRamFilter + '\\b', 'i');
-                        const romRegex = new RegExp('\\b' + this.productRomFilter + '\\b', 'i');
+                        const normalized = perfString.toUpperCase().replace(/\\s+/g, '');
+                        const ramValue = String(this.productRamFilter || '').toUpperCase().replace('GB', '');
+                        const romValue = String(this.productRomFilter || '').toUpperCase();
 
-                        const matchesRam = this.productRamFilter === 'All' || ramRegex.test(perfString);
-                        const matchesRom = this.productRomFilter === 'All' || romRegex.test(perfString);
+                        const matchesRam = this.productRamFilter === 'All' ||
+                            new RegExp('(?:^|\\+|[^0-9])'+ramValue+'(?:GB)?(?=\\+|[^0-9]|$)', 'i').test(normalized);
+                        const matchesRom = this.productRomFilter === 'All' ||
+                            new RegExp('(?:\\+|[^0-9])'+romValue+'(?:ROM)?(?:[^0-9A-Z]|$)', 'i').test(normalized);
 
                         return matchesSearch && matchesSeries && matchesRam && matchesRom;
                     });
@@ -11704,12 +11720,20 @@
                 get groupedModels() {
                     let map = {};
                     this.models.forEach(m => {
-                        // Strict filter using Word Boundaries to avoid "6GB" matching "16GB"
-                        const ramRegex = new RegExp('\\b' + this.selectedRam + '\\b', 'i');
-                        const romRegex = new RegExp('\\b' + this.selectedRom + '\\b', 'i');
+                        // Match the actual RAM/ROM parts of variants such as "8+128GB",
+                        // "8GB+128GB" and "8GB RAM + 128GB ROM". Do not use a simple
+                        // word-boundary search because affordability specs store RAM as "8+128GB".
+                        const specText = String(m.specs || '').toUpperCase().replace(/\\s+/g, '');
+                        const ramValue = String(this.selectedRam || '').toUpperCase().replace('GB', '');
+                        const romValue = String(this.selectedRom || '').toUpperCase();
 
-                        let matchesRam = this.selectedRam === 'All' || ramRegex.test(m.specs || '');
-                        let matchesRom = this.selectedRom === 'All' || romRegex.test(m.specs || '');
+                        let matchesRam = this.selectedRam === 'All' ||
+                            new RegExp('(?:^|\\+)'+ramValue+'(?:GB)?(?=\\+|$)', 'i').test(specText) ||
+                            new RegExp('(?:^|\\+)'+ramValue+'GB(?:RAM)?(?:\\+|$)', 'i').test(specText);
+
+                        let matchesRom = this.selectedRom === 'All' ||
+                            new RegExp('\\+'+romValue+'(?:$|[^0-9A-Z])', 'i').test(specText) ||
+                            new RegExp('(?:^|\\s)'+romValue+'(?:ROM)?(?:$|\\s)', 'i').test(specText);
 
                         if (matchesRam && matchesRom) {
                             if (!map[m.name]) {
