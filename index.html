@@ -1333,8 +1333,92 @@
                     }
                 },
 
+                // Product images are stored in the GitHub/Android project IMAGE folder.
+                // These filenames match the actual files supplied for the product colors.
                 imageFolder: 'IMAGE',
-                imageExtension: '.' + 'png',
+                productImageMap: {
+                    'S2': {
+                        'Regal Bronze': 's2_regal_bronze.png',
+                        'Sapphire Blue': 's2_sapphire_blue.png',
+                        'Silk White': 's2_silk_white.png'
+                    },
+                    'T5 Pro 5G': {
+                        'Cosmic Black': 't5_pro_5g_cosmic_black.png',
+                        'Glacier Blue': 't5_pro_5g_glacier_blue.png'
+                    },
+                    'T5x 5G': {
+                        'Cyber Green': 't5x_5g_cyber_green.png',
+                        'Star Silver': 't5x_5g_star_silver.webp'
+                    },
+                    'V60': {
+                        'Mist Gray': 'v60_mist_gray.webp'
+                    },
+                    'V70 Elite': {
+                        'Authentic Black': 'v70_elite_authentic_black.png',
+                        'Passion Red': 'v70_elite_passion_red.png',
+                        'Sand Beige': 'v70_elite_sand_beige.png'
+                    },
+                    'V70 FE': {
+                        'Monsoon Blue': 'v70_fe_monsoon_blue.png',
+                        'Northern Lights Purple': 'v70_fe_northern_lights_purple.png'
+                    },
+                    'V70': {
+                        'Lemon Yellow': 'v70_lemon_yellow.png',
+                        'Passion Red': 'v70_passion_red.png'
+                    },
+                    'X200T': {
+                        'Seaside Lilac': 'x200t_Seaside_lilac.png',
+                        'Stellar Black': 'x200t_stellar_black.png'
+                    },
+                    'X300 FE': {
+                        'Elite Black': 'x300_fe_elite_black.png',
+                        'Lilac Purple': 'x300_fe_lilac_purple.png',
+                        'Noir Black': 'x300_fe_noir_black.png',
+                        'Urban Olive': 'x300_fe_urban_olive.png'
+                    },
+                    'X300': {
+                        'Mist Blue': 'x300_mist_blue.png',
+                        'Elite Black': 'x300_elite_black.png',
+                        'Summit Red': 'x300_summit_red.png'
+                    },
+                    'X300 Pro': {
+                        'Dune Gold': 'x300_pro_dune_gold.png',
+                        'Elite Black': 'x300_pro_elite_black.png'
+                    },
+                    'X300 Ultra': {
+                        'Eclipse Black': 'x300_ultra_eclipse_black.png',
+                        'Victory Green': 'x300_ultra_victory_green.png'
+                    },
+                    'X Fold5': {
+                        'Titanium Grey': 'x_fold5_titanium_grey.png'
+                    },
+                    'Y05': {
+                        'Champagne Gold': 'y05_champagne_gold.png',
+                        'Midnight Blue': 'y05_midnight_blue.png'
+                    },
+                    'Y11 5G': {
+                        'Midnight Blue': 'y11_5g_midnight_blue.png',
+                        'Sunrise Gold': 'y11_5g_sunrise_gold.png'
+                    },
+                    'Y21 5G': {
+                        'Champagne Gold': 'y21_5g_champagne_gold.png',
+                        'Midnight Blue': 'y21_5g_midnight_blue.png'
+                    },
+                    'Y31 5G': {
+                        'Diamond Green': 'y31_5g_diamond_green.png',
+                        'Rose Red': 'y31_5g_rose_red.png'
+                    },
+                    'Y400 5G': {
+                        'Glam White': 'y400_5g_glam_white.png',
+                        'Olive Green': 'y400_5g_olive_green.png'
+                    },
+                    'Y51 Pro 5G': {
+                        'Festive Red': 'y51pro_5g_festive_red.png',
+                        'Noble Gold': 'y51pro_5g_noble_gold.png'
+                    }
+                },
+
+                imageExtension: '.png',
                 productColorCandidates: [
                     'Black', 'Blue', 'Gold', 'Green', 'Grey', 'Gray', 'Orange',
                     'Pink', 'Purple', 'Red', 'Silver', 'White', 'Yellow', 'Titanium'
@@ -1350,30 +1434,35 @@
                 },
 
                 productImageCandidatesFor(modelName, colorName = 'Default') {
+                    const base = this.imageFolder + '/';
+                    const mapped = this.productImageMap?.[modelName]?.[colorName];
+                    if (mapped) return [base + mapped];
+
                     const model = this.slugifyProductPart(modelName);
                     const color = this.slugifyProductPart(colorName);
-                    const ext = this.imageExtension;
-                    const base = this.imageFolder + '/';
-
                     if (color === 'default') {
                         return [
-                            base + model + ext,
-                            base + model + '_default' + ext
+                            base + model + '.png',
+                            base + model + '.webp',
+                            base + model + '_default.png',
+                            base + model + '_default.webp'
                         ];
                     }
 
                     return [
-                        base + model + '_' + color + ext,
-                        base + model + '-' + color + ext,
-                        base + model + ' ' + color + ext
+                        base + model + '_' + color + '.png',
+                        base + model + '_' + color + '.webp',
+                        base + model + '-' + color + '.png',
+                        base + model + '-' + color + '.webp',
+                        base + model + ' ' + color + '.png',
+                        base + model + ' ' + color + '.webp'
                     ];
                 },
 
                 getProductImage(modelName, colorName) {
                     const model = this.catalog[modelName];
                     if (!model) return '';
-                    const colors = model.colors || [];
-                    const color = colorName || colors[0] || 'Default';
+                    const color = colorName || (model.colors || [])[0] || 'Default';
                     const cached = this.productImageCache?.[modelName]?.[color];
                     if (cached) return cached;
                     const candidates = colorName
@@ -1383,6 +1472,8 @@
                 },
 
                 getCardImageCandidates(modelName) {
+                    const mapped = this.productImageMap?.[modelName];
+                    if (mapped) return Object.values(mapped).map(file => this.imageFolder + '/' + file);
                     const allColors = ['Default', ...this.productColorCandidates];
                     return [...new Set(allColors.flatMap(color =>
                         this.productImageCandidatesFor(modelName, color)
@@ -1402,10 +1493,27 @@
                     if (!this.catalog[modelName]) return;
                     if (!this.productImageCache[modelName]) this.productImageCache[modelName] = {};
 
+                    const mappedColors = this.productImageMap?.[modelName];
+                    if (mappedColors) {
+                        const found = [];
+                        for (const [color, file] of Object.entries(mappedColors)) {
+                            const url = this.imageFolder + '/' + file;
+                            if (await this.imageExists(url)) {
+                                this.productImageCache[modelName][color] = url;
+                                found.push(color);
+                            }
+                        }
+                        if (found.length) {
+                            this.catalog[modelName].colors = found;
+                            if (!found.includes(this.selectedColor)) this.selectedColor = found[0];
+                            return;
+                        }
+                    }
+
+                    // Fallback for any future model whose exact filename is not mapped above.
                     const found = [];
                     for (const color of this.productColorCandidates) {
-                        const candidates = this.productImageCandidatesFor(modelName, color);
-                        for (const url of candidates) {
+                        for (const url of this.productImageCandidatesFor(modelName, color)) {
                             if (await this.imageExists(url)) {
                                 this.productImageCache[modelName][color] = url;
                                 found.push(color);
