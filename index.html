@@ -600,11 +600,11 @@
 <!-- Left: Image & Colors -->
 <div class="p-4 md:w-[60%] space-y-6">
 <div class="relative w-full aspect-[4/5] bg-blue-50/30 dark:bg-slate-800/30 rounded-[32px] border border-blue-100 dark:border-white/5 flex items-center justify-center overflow-hidden shadow-2xl">
-<img :src="getProductImage(selectedProductModel, selectedColor)" @error="cycleProductImage($event, selectedProductModel, selectedColor)" class="product-color-image relative z-10 w-full h-full object-contain transition-all duration-700 hover:scale-105"/>
+<img :src="getProductImage(selectedProductModel, selectedColor)" @error="handleProductImageError($event, selectedProductModel, selectedColor)" class="product-color-image relative z-10 w-full h-full object-contain transition-all duration-700 hover:scale-105"/>
 </div>
 <div class="flex justify-center flex-wrap gap-2">
 <template :key="color" x-for="color in catalog[selectedProductModel]?.colors">
-<button :class="selectedColor === color ? 'ring-2 ring-blue-500 scale-105 bg-blue-500/10' : 'opacity-70 bg-black/5 dark:bg-white/5'" @click="selectedColor = color; if (!productImageCache[selectedProductModel]) productImageCache[selectedProductModel] = {}; productImageCache[selectedProductModel][color] = productColorFileName(selectedProductModel, color)" class="px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all shadow-sm" x-text="color">
+<button :class="selectedColor === color ? 'ring-2 ring-blue-500 scale-105 bg-blue-500/10' : 'opacity-70 bg-black/5 dark:bg-white/5'" @click="selectProductColor(selectedProductModel, color)" class="px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all shadow-sm" x-text="color">
 </button>
 </template>
 </div>
@@ -1434,7 +1434,7 @@
                 },
 
                 productImageCandidatesFor(modelName, colorName = 'Default') {
-                    const base = this.imageFolder + '/';
+                    const base = './' + this.imageFolder + '/';
                     const mapped = this.productImageMap?.[modelName]?.[colorName];
                     if (mapped) return [base + mapped];
 
@@ -1459,6 +1459,25 @@
                     ];
                 },
 
+                selectProductColor(modelName, colorName) {
+                    this.selectedColor = colorName;
+                    if (!this.productImageCache[modelName]) this.productImageCache[modelName] = {};
+                    const mapped = this.productImageMap?.[modelName]?.[colorName];
+                    if (mapped) {
+                        this.productImageCache[modelName][colorName] = './' + this.imageFolder + '/' + mapped;
+                    }
+                },
+
+                handleProductImageError(event, modelName, colorName) {
+                    const mapped = this.productImageMap?.[modelName]?.[colorName];
+                    if (mapped && event.target.dataset.imageErrorRetried !== '1') {
+                        event.target.dataset.imageErrorRetried = '1';
+                        event.target.src = './' + this.imageFolder + '/' + mapped;
+                        return;
+                    }
+                    this.cycleProductImage(event, modelName, colorName);
+                },
+
                 getProductImage(modelName, colorName) {
                     const model = this.catalog[modelName];
                     if (!model) return '';
@@ -1473,7 +1492,7 @@
 
                 getCardImageCandidates(modelName) {
                     const mapped = this.productImageMap?.[modelName];
-                    if (mapped) return Object.values(mapped).map(file => this.imageFolder + '/' + file);
+                    if (mapped) return Object.values(mapped).map(file => './' + this.imageFolder + '/' + file);
                     const allColors = ['Default', ...this.productColorCandidates];
                     return [...new Set(allColors.flatMap(color =>
                         this.productImageCandidatesFor(modelName, color)
@@ -1497,7 +1516,7 @@
                     if (mappedColors) {
                         const found = [];
                         for (const [color, file] of Object.entries(mappedColors)) {
-                            const url = this.imageFolder + '/' + file;
+                            const url = './' + this.imageFolder + '/' + file;
                             if (await this.imageExists(url)) {
                                 this.productImageCache[modelName][color] = url;
                                 found.push(color);
