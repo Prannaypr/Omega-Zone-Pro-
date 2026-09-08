@@ -529,6 +529,23 @@
                     }
                 },
 
+
+                /* Exact IMAGE folder filenames supplied by the user */
+                exactProductImages: {"S2": ["s2_regal_bronze.png", "s2_sapphire_blue.png", "s2_silk_white.png"], "T5 Pro 5G": ["t5_pro_5g_cosmic_black.png", "t5_pro_5g_glacier_blue.png"], "T5x 5G": ["t5x_5g_cyber_green.png", "t5x_5g_star_silver.webp"], "V60": ["v60_mist_gray.webp"], "V70 Elite": ["v70_elite_authentic_black.png", "v70_elite_passion_red.png", "v70_elite_sand_beige.png"], "V70 FE": ["v70_fe_monsoon_blue.png", "v70_fe_northern_lights_purple.png"], "V70": ["v70_lemon_yellow.png", "v70_passion_red.png"], "X200T": ["x200t_seaside_lilac.png", "x200t_stellar_black.png"], "X300": ["x300_elite_black.png", "x300_mist_blue.png", "x300_summit_red.png"], "X300 FE": ["x300_fe_lilac_purple.png", "x300_fe_noir_black.png", "x300_fe_urban_olive.png"], "X300 Pro": ["x300_pro_dune_gold.png", "x300_pro_elite_black.png"], "X300 Ultra": ["x300_ultra_eclipse_black.png", "x300_ultra_victory_green.png"], "X Fold5": ["x_fold5_titanium_grey.png"], "Y05": ["y05_champagne_gold.png", "y05_midnight_blue.png"], "Y11 5G": ["y11_5g_midnight_blue.png", "y11_5g_sunrise_gold.png"], "Y21 5G": ["y21_5g_champagne_gold.png", "y21_5g_midnight_blue.png"], "Y31 5G": ["y31_5g_diamond_green.png", "y31_5g_rose_red.png"], "Y400 5G": ["y400_5g_glam_white.png", "y400_5g_olive_green.png"], "Y51 Pro 5G": ["y51pro_5g_festive_red.png", "y51pro_5g_noble_gold.png"]},
+
+                getExactProductImage(modelName, colorName) {
+                    const files = this.exactProductImages[modelName] || [];
+                    if (!files.length) return '';
+
+                    const wanted = this.slugifyProductPart(colorName || '');
+                    const match = files.find(file => {
+                        const stem = file.replace(/\\.[^.]+$/, '');
+                        const colorPart = stem.split('_').slice(1).join('_');
+                        return this.slugifyProductPart(colorPart) === wanted;
+                    });
+                    return 'IMAGE/' + (match || files[0]);
+                },
+
                 imageFolder: 'IMAGE',
                 imageExtension: '.' + 'png',
                 productColorCandidates: [
@@ -553,7 +570,6 @@
                     return String(modelName || '')
                         .toLowerCase()
                         .replace(/^vivo\s+/, '')
-                        .replace(/\s*5g\s*$/i, '')
                         .replace(/\s+/g, '_')
                         .replace(/[^a-z0-9_]+/g, '_')
                         .replace(/^_+|_+$/g, '');
@@ -590,20 +606,22 @@
                     const model = this.catalog[modelName];
                     if (!model) return '';
 
-                    const colors = model.colors || [];
-                    const color = colorName || colors[0] || 'Default';
-
-                    // If the user selected a color, immediately show its exact
-                    // IMAGE/<model>_<color>.png file.
-                    if (colorName) {
-                        const exact = this.productColorFileName(modelName, colorName);
-                        if (!this.productImageCache[modelName]) {
-                            this.productImageCache[modelName] = {};
+                    const exactFiles = this.exactProductImages[modelName] || [];
+                    if (exactFiles.length) {
+                        const colors = model.colors || [];
+                        const color = colorName || colors[0] || 'Default';
+                        const exact = this.getExactProductImage(modelName, color);
+                        if (exact) {
+                            if (!this.productImageCache[modelName]) {
+                                this.productImageCache[modelName] = {};
+                            }
+                            this.productImageCache[modelName][color] = exact;
+                            return exact;
                         }
-                        this.productImageCache[modelName][color] = exact;
-                        return exact;
                     }
 
+                    const colors = model.colors || [];
+                    const color = colorName || colors[0] || 'Default';
                     const cached = this.productImageCache?.[modelName]?.[color];
                     if (cached) return cached;
 
@@ -630,6 +648,22 @@
                 async discoverProductColors(modelName) {
                     if (!this.catalog[modelName]) return;
                     if (!this.productImageCache[modelName]) this.productImageCache[modelName] = {};
+
+                    const exactFiles = this.exactProductImages[modelName] || [];
+                    if (exactFiles.length) {
+                        // Use the catalog's real color names and map them to the
+                        // exact filenames supplied in IMAGE/.
+                        const catalogColors = this.catalog[modelName].colors || [];
+                        const found = catalogColors.filter(color => {
+                            const url = this.getExactProductImage(modelName, color);
+                            return !!url;
+                        });
+                        if (found.length) {
+                            this.catalog[modelName].colors = found;
+                            this.selectedColor = found[0];
+                        }
+                        return;
+                    }
 
                     const found = [];
                     for (const color of this.productColorCandidates) {
@@ -661,6 +695,20 @@
 
                 cycleProductImage(event, modelName, colorName) {
                     const img = event.target;
+                    const exactFiles = this.exactProductImages[modelName] || [];
+
+                    if (exactFiles.length) {
+                        const attempted = Number(img.dataset.imageAttempt || 0);
+                        if (attempted + 1 < exactFiles.length) {
+                            img.dataset.imageAttempt = String(attempted + 1);
+                            img.src = 'IMAGE/' + exactFiles[attempted + 1];
+                        } else {
+                            img.dataset.imageAttempt = '0';
+                            console.warn('Omega Zone image not found:', img.src);
+                        }
+                        return;
+                    }
+
                     const attempted = Number(img.dataset.imageAttempt || 0);
                     const candidates = colorName
                         ? this.productImageCandidatesFor(modelName, colorName)
@@ -670,9 +718,6 @@
                         img.dataset.imageAttempt = String(attempted + 1);
                         img.src = candidates[attempted + 1];
                     } else {
-                        // Keep the image box visible instead of leaving a broken
-                        // blank area. The exact filename is shown in the console
-                        // to make missing Android asset names easy to diagnose.
                         img.dataset.imageAttempt = '0';
                         console.warn('Omega Zone image not found:', candidates[0]);
                     }
