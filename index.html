@@ -395,6 +395,12 @@
                         class="hover:opacity-80 text-[9px] px-3 py-1.5 rounded-xl font-bold transition-all flex items-center space-x-1.5 border shadow-sm">
                     <span>⚙️</span><span>Admin</span>
                 </button>
+                <button x-show="authenticated" @click="logout()"
+                        :class="darkMode ? 'bg-red-400/10 text-red-300 border-red-400/20' : 'bg-red-50 text-red-700 border-red-200'"
+                        class="hover:opacity-80 text-[9px] px-3 py-1.5 rounded-xl font-bold transition-all flex items-center space-x-1.5 border shadow-sm">
+                    <span>↪</span><span>Logout</span>
+                </button>
+
                 <button @click="showPartnerModal = true"
                         :class="darkMode ? 'bg-white/10 text-white border-white/10' : 'bg-blue-50 text-blue-700 border-blue-100'"
                         class="hover:opacity-80 text-[9px] px-3 py-1.5 rounded-xl font-bold transition-all flex items-center space-x-1.5 border shadow-sm">
@@ -1110,9 +1116,16 @@
                     this.authenticated = false;
                     this.isAdmin = false;
                     this.adminPanelOpen = false;
+                    this.showPartnerModal = false;
+                    this.showProductModal = false;
+                    this.showCompareModal = false;
+                    this.selectedModel = null;
+                    this.selectedGroupForModal = null;
                     this.loginId = '';
                     this.loginPassword = '';
                     this.authError = '';
+                    this.currentTab = 'Affordability';
+                    window.scrollTo(0, 0);
                 },
                 addUser() {
                     const id = (this.newUserId || '').trim();
