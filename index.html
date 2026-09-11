@@ -894,222 +894,36 @@
                 </div>
 
                 <div x-show="activeTab === 'cc-emi'" class="space-y-4">
-                    <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl text-blue-900 space-y-1 dark:bg-black/20 dark:border-blue-800 dark:text-blue-300">
-                        <h4 class="font-bold text-sm">Credit Card EMI Subvention & Cashback Matrix</h4>
-                        <p class="text-[11px] text-blue-800 leading-relaxed dark:text-blue-400">Transactions must be processed through authorized EDC terminals (Pine Labs, Benow, Innoviti, Razorpay) meeting the Minimum Swipe threshold.</p>
+                    <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl text-blue-900 dark:bg-black/20 dark:border-blue-800 dark:text-blue-300">
+                        <h4 class="font-bold text-sm">CC EMI Cashback</h4>
+                        <p class="text-[11px] text-blue-800 leading-relaxed dark:text-blue-400">Credit Card EMI cashback for the selected model.</p>
                     </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3 dark:bg-black/20 dark:border-white/5">
-                            <div class="flex items-center space-x-2 text-blue-700 dark:text-blue-400">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                <span class="font-bold text-sm uppercase tracking-wider">No Cost EMI (NCE)</span>
-                            </div>
-                            <div>
-                                <div class="text-xl font-black text-slate-900 dark:text-white" x-text="selectedModel?.ccNce || '3m, 6m, 9m'"></div>
-                                <span class="text-[10px] text-slate-500 font-medium dark:text-slate-400">Available Tenures (0% Interest)</span>
-                            </div>
-                        </div>
-
-                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3 dark:bg-black/20 dark:border-white/5">
-                            <div class="flex items-center space-x-2 text-amber-600 dark:text-amber-400">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
-                                <span class="font-bold text-sm uppercase tracking-wider">Low Cost EMI (LCE)</span>
-                            </div>
-                            <div>
-                                <div class="text-xl font-black text-slate-900 dark:text-white" x-text="selectedModel?.ccLce || '12m, 18m, 24m'"></div>
-                                <span class="text-[10px] text-slate-500 font-medium dark:text-slate-400">Extended Tenure Options</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2 dark:bg-black/50 dark:border-slate-700">
-                            <h4 class="font-bold text-slate-900 text-sm flex items-center space-x-1.5 dark:text-white">
-                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
-                                <span>CC EMI Eligible Banks</span>
-                            </h4>
-                            <p class="text-xs text-slate-700 leading-relaxed font-semibold dark:text-slate-300" x-text="selectedModel?.banksEmi"></p>
-                        </div>
-                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2 dark:bg-black/50 dark:border-slate-700">
-                            <h4 class="font-bold text-slate-900 text-sm flex items-center space-x-1.5 dark:text-white">
-                                <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                <span>CC EMI Cashback Offer</span>
-                            </h4>
-                            <p class="text-base font-extrabold text-blue-700 mt-1 dark:text-blue-400" x-text="selectedModel?.ccEmiCashback"></p>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 grid grid-cols-2 gap-4 text-xs dark:bg-black/50 dark:border-slate-700">
-                        <div>
-                            <span class="text-slate-400 block text-[10px] dark:text-slate-500">Market Price (MOP)</span>
-                            <span class="font-bold text-slate-900 text-sm dark:text-white" x-text="'₹' + selectedModel?.mop.toLocaleString('en-IN')"></span>
-                        </div>
-                        <div>
-                            <span class="text-slate-400 block text-[10px] dark:text-slate-500">Minimum Swipe Limit (NCE)</span>
-                            <span class="font-bold text-emerald-700 text-sm dark:text-emerald-400" x-text="typeof selectedModel?.minSwipe === 'number' ? '₹' + selectedModel?.minSwipe.toLocaleString('en-IN') : selectedModel?.minSwipe"></span>
-                        </div>
+                    <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 shadow-sm dark:bg-black/50 dark:border-slate-700">
+                        <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider dark:text-slate-400">CC EMI Cashback</span>
+                        <p class="text-2xl font-black text-blue-700 mt-2 dark:text-blue-400" x-text="selectedModel?.ccEmiCashback || 'NA'"></p>
                     </div>
                 </div>
 
                 <div x-show="activeTab === 'fullswipe'" class="space-y-4">
-                    <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl text-emerald-900 space-y-1 dark:bg-emerald-900/20 dark:border-emerald-800 dark:text-emerald-300">
-                        <h4 class="font-bold text-sm">Full Swipe Instant Cashback</h4>
-                        <p class="text-[11px] text-emerald-800 leading-relaxed dark:text-emerald-400">Full Swipe offer details and eligible banks for the selected model.</p>
+                    <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl text-emerald-900 dark:bg-emerald-900/20 dark:border-emerald-800 dark:text-emerald-300">
+                        <h4 class="font-bold text-sm">CC Full Swipe Cashback</h4>
+                        <p class="text-[11px] text-emerald-800 leading-relaxed dark:text-emerald-400">Full Swipe cashback for the selected model.</p>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2 dark:bg-black/50 dark:border-slate-700">
-                            <h4 class="font-bold text-slate-900 text-sm dark:text-white">Full Swipe Eligible Banks</h4>
-                            <p class="text-xs text-slate-700 leading-relaxed font-semibold dark:text-slate-300" x-text="selectedModel?.banksFullswipe"></p>
-                        </div>
-                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2 dark:bg-black/50 dark:border-slate-700">
-                            <h4 class="font-bold text-slate-900 text-sm dark:text-white">Full Swipe Cashback Offer</h4>
-                            <p class="text-base font-extrabold text-emerald-700 mt-1 dark:text-emerald-400" x-text="selectedModel?.ccFullswipeCashback"></p>
-                        </div>
+                    <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 shadow-sm dark:bg-black/50 dark:border-slate-700">
+                        <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider dark:text-slate-400">CC Full Swipe Cashback</span>
+                        <p class="text-2xl font-black text-emerald-700 mt-2 dark:text-emerald-400" x-text="selectedModel?.ccFullswipeCashback || 'NA'"></p>
                     </div>
                 </div>
 
                 <div x-show="activeTab === 'upi'" class="space-y-4">
-                    <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl text-blue-900 space-y-1 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-300">
-                        <h4 class="font-bold text-sm">UPI Instant Cashback</h4>
-                        <p class="text-[11px] text-blue-800 leading-relaxed dark:text-blue-400">UPI offer details for the selected model. UPI availability follows the September 2026 affordability rate card.</p>
+                    <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl text-blue-900 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-300">
+                        <h4 class="font-bold text-sm">UPI Cashback</h4>
+                        <p class="text-[11px] text-blue-800 leading-relaxed dark:text-blue-400">UPI cashback is shown only where it is mentioned in the September 2026 rate card.</p>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2 dark:bg-black/50 dark:border-slate-700">
-                            <h4 class="font-bold text-slate-900 text-sm dark:text-white">UPI Eligibility</h4>
-                            <p class="text-xs text-slate-700 leading-relaxed font-semibold dark:text-slate-300" x-text="selectedModel?.banksUpi || 'Not Eligible'"></p>
-                        </div>
-                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2 dark:bg-black/50 dark:border-slate-700">
-                            <h4 class="font-bold text-slate-900 text-sm dark:text-white">UPI Cashback Offer</h4>
-                            <p class="text-base font-extrabold text-blue-700 mt-1 dark:text-blue-400" x-text="selectedModel?.upiCashback || 'NA'"></p>
-                        </div>
+                    <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 shadow-sm dark:bg-black/50 dark:border-slate-700">
+                        <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider dark:text-slate-400">UPI Cashback</span>
+                        <p class="text-2xl font-black text-blue-700 mt-2 dark:text-blue-400" x-text="(selectedModel?.upiCashback && selectedModel.upiCashback !== 'NA') ? selectedModel.upiCashback : 'NA'"></p>
                     </div>
-                </div>
-
-                <div x-show="activeTab === 'vshield' && selectedModel?.series !== 'Extender Kit'" class="space-y-4">
-                    <!-- Standard V-Shield Plans -->
-                    <template x-if="!vshieldPro">
-                        <div class="space-y-4">
-                            <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl text-amber-900 space-y-1 dark:bg-amber-900/20 dark:border-amber-800 dark:text-amber-300">
-                                <h4 class="font-bold text-sm">V-Shield Complete Device Protection & Warranty Engine</h4>
-                                <p class="text-[11px] text-amber-800 leading-relaxed dark:text-amber-400">Comprehensive protection plans designed to safeguard your vivo device against accidental damage, liquid spills, and mechanical failures.</p>
-                            </div>
-
-                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex flex-col justify-between dark:bg-slate-700 dark:border-slate-600">
-                                    <div>
-                                        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-700 uppercase dark:bg-black/40 dark:text-blue-300">EW (6 Month)</span>
-                                        <div class="mt-2 text-base font-extrabold text-slate-900 dark:text-white" x-text="'₹' + Math.round(selectedModel?.mop * 0.03).toLocaleString('en-IN')"></div>
-                                        <span class="text-[10px] text-slate-500 block mt-0.5 dark:text-slate-400">3% of Device MOP</span>
-                                    </div>
-                                    <div class="mt-3 text-[10px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-1 rounded border border-emerald-100 dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-400">No Processing Fees</div>
-                                </div>
-
-                                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex flex-col justify-between dark:bg-slate-700 dark:border-slate-600">
-                                    <div>
-                                        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-100 text-purple-700 uppercase dark:bg-purple-900/40 dark:text-purple-300">SDP (6 Month)</span>
-                                        <div class="mt-2 text-base font-extrabold text-slate-900 dark:text-white" x-text="'₹' + Math.round(selectedModel?.mop * 0.04).toLocaleString('en-IN')"></div>
-                                        <span class="text-[10px] text-slate-500 block mt-0.5 dark:text-slate-400">4% of Device MOP</span>
-                                    </div>
-                                    <div class="mt-3 text-[10px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-1 rounded border border-emerald-100 dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-400">No Processing Fees</div>
-                                </div>
-
-                                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex flex-col justify-between dark:bg-slate-700 dark:border-slate-600">
-                                    <div>
-                                        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-700 uppercase dark:bg-black/40 dark:text-blue-300">Extended Warranty (1Yr)</span>
-                                        <div class="mt-2 text-base font-extrabold text-slate-900 dark:text-white" x-text="'₹' + Math.round(selectedModel?.mop * 0.06).toLocaleString('en-IN')"></div>
-                                        <span class="text-[10px] text-slate-500 block mt-0.5 dark:text-slate-400">6% of Device MOP</span>
-                                    </div>
-                                    <div class="mt-3 text-[10px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-1 rounded border border-emerald-100 dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-400">No Processing Fees</div>
-                                </div>
-
-                                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex flex-col justify-between dark:bg-slate-700 dark:border-slate-600">
-                                    <div>
-                                        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-100 text-purple-700 uppercase dark:bg-purple-900/40 dark:text-purple-300">Screen Damage (1Yr)</span>
-                                        <div class="mt-2 text-base font-extrabold text-slate-900 dark:text-white" x-text="'₹' + Math.round(selectedModel?.mop * 0.08).toLocaleString('en-IN')"></div>
-                                        <span class="text-[10px] text-slate-500 block mt-0.5 dark:text-slate-400">8% of Device MOP</span>
-                                    </div>
-                                    <div class="mt-3 text-[10px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-1 rounded border border-emerald-100 dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-400">No Processing Fees</div>
-                                </div>
-
-                                <div class="bg-blue-50 p-3.5 rounded-xl border border-blue-200 sm:col-span-2 flex flex-col justify-between dark:bg-black/20 dark:border-blue-800">
-                                    <div class="flex justify-between items-start">
-                                        <div>
-                                            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-600 text-white uppercase">CDP (Complete Protection)</span>
-                                            <div class="mt-2 text-lg font-extrabold text-blue-900 dark:text-blue-300" x-text="'₹' + Math.round(selectedModel?.mop * 0.11).toLocaleString('en-IN')"></div>
-                                            <span class="text-[10px] text-blue-700 block mt-0.5 dark:text-blue-400">11% of Device MOP</span>
-                                        </div>
-                                        <div class="text-right">
-                                            <span class="text-[10px] text-slate-500 block dark:text-slate-400">Processing Fee (CDP-PF)</span>
-                                            <div class="text-sm font-bold text-slate-900 dark:text-white" x-text="'₹' + getCdpPf(selectedModel?.mop).toLocaleString('en-IN')"></div>
-                                        </div>
-                                    </div>
-                                    <div class="mt-3 text-[10px] text-blue-700 font-semibold bg-white/80 px-2 py-1 rounded border border-blue-100 dark:bg-slate-950 dark:border-blue-900 dark:text-blue-300">Covers accidental & liquid damage</div>
-                                </div>
-                            </div>
-                        </div>
-                    </template>
-
-                    <!-- V-Shield Pro Plans -->
-                    <template x-if="vshieldPro">
-                        <div class="space-y-4">
-                            <div class="bg-indigo-50 border border-indigo-200 p-4 rounded-xl text-indigo-900 space-y-1 dark:bg-indigo-900/20 dark:border-indigo-800 dark:text-indigo-300">
-                                <h4 class="font-bold text-sm">V-Shield Pro Premium Protection Matrix</h4>
-                                <p class="text-[11px] text-indigo-800 leading-relaxed dark:text-indigo-400">Advanced coverage with unlimited repairs and premium mechanical support.</p>
-                            </div>
-
-                            <div class="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                                <table class="w-full text-left border-collapse bg-white dark:bg-black/20">
-                                    <thead>
-                                        <tr class="bg-slate-50 dark:bg-black/50 text-[10px] font-black uppercase text-slate-400 tracking-widest border-b border-slate-200 dark:border-slate-700">
-                                            <th class="p-3">Plan</th>
-                                            <th class="p-3">Price</th>
-                                            <th class="p-3">Coverage</th>
-                                            <th class="p-3">Benefit</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="text-[11px] divide-y divide-slate-100 dark:divide-slate-800">
-                                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30">
-                                            <td class="p-3 font-black text-indigo-600 dark:text-indigo-400">SDP Pro</td>
-                                            <td class="p-3 font-bold text-slate-900 dark:text-white">
-                                                <div x-text="'₹' + Math.round(selectedModel?.mop * 0.11).toLocaleString('en-IN')"></div>
-                                                <div class="text-[9px] text-slate-400">(11%)</div>
-                                            </td>
-                                            <td class="p-3 text-slate-600 dark:text-slate-400">Screen & Back-Panel Damage</td>
-                                            <td class="p-3">
-                                                <div class="font-bold text-emerald-600 dark:text-emerald-400">Unlimited Repairs</div>
-                                                <div class="text-[9px] text-slate-400">1st Claim Free PF</div>
-                                            </td>
-                                        </tr>
-                                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30">
-                                            <td class="p-3 font-black text-blue-600 dark:text-blue-400">CDP Pro</td>
-                                            <td class="p-3 font-bold text-slate-900 dark:text-white">
-                                                <div x-text="'₹' + Math.round(selectedModel?.mop * 0.14).toLocaleString('en-IN')"></div>
-                                                <div class="text-[9px] text-slate-400">(14%)</div>
-                                            </td>
-                                            <td class="p-3 text-slate-600 dark:text-slate-400">Accidental, Physical & Liquid</td>
-                                            <td class="p-3">
-                                                <div class="font-bold text-blue-600 dark:text-blue-400">Multiple Claims</div>
-                                                <div class="text-[9px] text-slate-400">5% Processing Fee</div>
-                                            </td>
-                                        </tr>
-                                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30">
-                                            <td class="p-3 font-black text-amber-600 dark:text-amber-400">EW Pro</td>
-                                            <td class="p-3 font-bold text-slate-900 dark:text-white">
-                                                <div x-text="'₹' + Math.round(selectedModel?.mop * 0.09).toLocaleString('en-IN')"></div>
-                                                <div class="text-[9px] text-slate-400">(9%)</div>
-                                            </td>
-                                            <td class="p-3 text-slate-600 dark:text-slate-400">Mechanical & Electrical</td>
-                                            <td class="p-3">
-                                                <div class="font-bold text-amber-600 dark:text-amber-400">Free Pick & Drop</div>
-                                                <div class="text-[9px] text-slate-400">+12 Months Ext</div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </template>
                 </div>
 
                 <div x-show="activeTab === 'terms'" class="space-y-4 text-slate-700 leading-relaxed dark:text-slate-300">
@@ -1745,8 +1559,8 @@
     "minSwipe": 99999,
     "ccNce": "3m, 6m, 9m",
     "ccLce": "12m, 18m, 24m (Up to 6%)",
-    "ccEmiCashback": "10% up to 12000",
-    "ccFullswipeCashback": "10% up to 12000",
+    "ccEmiCashback": "10% upto 12000",
+    "ccFullswipeCashback": "10% upto 12000",
     "banksEmi": "IDFC, DBS, SBI, Yes, HDFC, Kotak, Axis",
     "banksFullswipe": "IDFC, DBS, SBI, Yes, Kotak, Axis",
     "bajajSchemes": [
@@ -1923,15 +1737,17 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "24|0",
+    "dmiSchemes": [
+      "24|0",
       "18|0",
       "15|0",
       "12|0",
       "9|0",
       "8|0",
       "7|0",
-      "6|0"],
-    "upiCashback": "10% up to 12000",
+      "6|0"
+    ],
+    "upiCashback": "10% upto 12000",
     "banksUpi": "UPI Eligible",
     "homeCreditSchemes": [
       "24|0",
@@ -2146,14 +1962,16 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "24|0",
+    "dmiSchemes": [
+      "24|0",
       "18|0",
       "15|0",
       "12|0",
       "9|0",
       "8|0",
       "7|0",
-      "6|0"],
+      "6|0"
+    ],
     "upiCashback": "NA",
     "banksUpi": "Not Eligible",
     "homeCreditSchemes": [
@@ -2190,8 +2008,8 @@
     "minSwipe": 99999,
     "ccNce": "3m, 6m, 9m",
     "ccLce": "NA",
-    "ccEmiCashback": "10%",
-    "ccFullswipeCashback": "NA",
+    "ccEmiCashback": "NA",
+    "ccFullswipeCashback": "10%",
     "banksEmi": "IDFC, DBS, SBI, Yes, HDFC, Kotak, Axis, OneCard",
     "banksFullswipe": "IDFC, DBS, SBI, Yes, Kotak, Axis",
     "bajajSchemes": [],
@@ -2347,14 +2165,16 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "24|0",
+    "dmiSchemes": [
+      "24|0",
       "18|0",
       "15|0",
       "12|0",
       "9|0",
       "8|0",
       "7|0",
-      "6|0"],
+      "6|0"
+    ],
     "upiCashback": "15000",
     "banksUpi": "UPI Eligible",
     "homeCreditSchemes": [
@@ -2391,8 +2211,8 @@
     "minSwipe": 99999,
     "ccNce": "CIB",
     "ccLce": "CIB",
-    "ccEmiCashback": "15%",
-    "ccFullswipeCashback": "NA",
+    "ccEmiCashback": "NA",
+    "ccFullswipeCashback": "15%",
     "banksEmi": "IDFC, DBS, SBI, Yes, HDFC, Kotak, Axis, OneCard",
     "banksFullswipe": "IDFC, DBS, SBI, Yes, Kotak, Axis",
     "bajajSchemes": [],
@@ -2525,14 +2345,16 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "24|0",
+    "dmiSchemes": [
+      "24|0",
       "18|0",
       "15|0",
       "12|0",
       "9|0",
       "8|0",
       "7|0",
-      "6|0"],
+      "6|0"
+    ],
     "upiCashback": "20000",
     "banksUpi": "UPI Eligible",
     "homeCreditSchemes": []
@@ -2701,14 +2523,16 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "24|0",
+    "dmiSchemes": [
+      "24|0",
       "18|0",
       "15|0",
       "12|0",
       "9|0",
       "8|0",
       "7|0",
-      "6|0"],
+      "6|0"
+    ],
     "upiCashback": "NA",
     "banksUpi": "Not Eligible",
     "homeCreditSchemes": []
@@ -2855,14 +2679,16 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "24|0",
+    "dmiSchemes": [
+      "24|0",
       "18|0",
       "15|0",
       "12|0",
       "9|0",
       "8|0",
       "7|0",
-      "6|0"],
+      "6|0"
+    ],
     "upiCashback": "10%",
     "banksUpi": "UPI Eligible",
     "homeCreditSchemes": []
@@ -3009,14 +2835,16 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "24|0",
+    "dmiSchemes": [
+      "24|0",
       "18|0",
       "15|0",
       "12|0",
       "9|0",
       "8|0",
       "7|0",
-      "6|0"],
+      "6|0"
+    ],
     "upiCashback": "15%",
     "banksUpi": "UPI Eligible",
     "homeCreditSchemes": []
@@ -3212,14 +3040,16 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "24|0",
+    "dmiSchemes": [
+      "24|0",
       "18|0",
       "15|0",
       "12|0",
       "9|0",
       "8|0",
       "7|0",
-      "6|0"],
+      "6|0"
+    ],
     "upiCashback": "10%",
     "banksUpi": "UPI Eligible",
     "homeCreditSchemes": [
@@ -3437,13 +3267,15 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "18|0",
+    "dmiSchemes": [
+      "18|0",
       "15|0",
       "12|0",
       "9|0",
       "8|0",
       "7|0",
-      "6|0"],
+      "6|0"
+    ],
     "upiCashback": "10%",
     "banksUpi": "UPI Eligible",
     "homeCreditSchemes": [
@@ -3661,13 +3493,15 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "18|0",
+    "dmiSchemes": [
+      "18|0",
       "15|0",
       "12|0",
       "9|0",
       "8|0",
       "7|0",
-      "6|0"],
+      "6|0"
+    ],
     "upiCashback": "10%",
     "banksUpi": "UPI Eligible",
     "homeCreditSchemes": [
@@ -3883,13 +3717,15 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "18|0",
+    "dmiSchemes": [
+      "18|0",
       "15|0",
       "12|0",
       "9|0",
       "8|0",
       "7|0",
-      "6|0"],
+      "6|0"
+    ],
     "upiCashback": "10% up to 10000",
     "banksUpi": "UPI Eligible",
     "homeCreditSchemes": [
@@ -4100,12 +3936,14 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "15|0",
+    "dmiSchemes": [
+      "15|0",
       "12|0",
       "9|0",
       "8|0",
       "7|0",
-      "6|0"],
+      "6|0"
+    ],
     "upiCashback": "10% up to 8000",
     "banksUpi": "UPI Eligible",
     "homeCreditSchemes": [
@@ -4315,12 +4153,14 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "15|0",
+    "dmiSchemes": [
+      "15|0",
       "12|0",
       "9|0",
       "8|0",
       "7|0",
-      "6|0"],
+      "6|0"
+    ],
     "upiCashback": "10% up to 8000",
     "banksUpi": "UPI Eligible",
     "homeCreditSchemes": [
@@ -4530,12 +4370,14 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "15|0",
+    "dmiSchemes": [
+      "15|0",
       "12|0",
       "9|0",
       "8|0",
       "7|0",
-      "6|0"],
+      "6|0"
+    ],
     "upiCashback": "10% up to 7500",
     "banksUpi": "UPI Eligible",
     "homeCreditSchemes": [
@@ -4775,8 +4617,10 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "7|0",
-      "6|0"],
+    "dmiSchemes": [
+      "7|0",
+      "6|0"
+    ],
     "upiCashback": "3000",
     "banksUpi": "UPI Eligible",
     "homeCreditSchemes": [
@@ -4962,8 +4806,10 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "7|0",
-      "6|0"],
+    "dmiSchemes": [
+      "7|0",
+      "6|0"
+    ],
     "upiCashback": "4000",
     "banksUpi": "UPI Eligible",
     "homeCreditSchemes": [
@@ -5058,13 +4904,15 @@
     "poonawallaSchemes": [],
     "iciciSchemes": [],
     "cholaSchemes": [],
-    "dmiSchemes": [      "18|0",
+    "dmiSchemes": [
+      "18|0",
       "15|0",
       "12|0",
       "9|0",
       "8|0",
       "7|0",
-      "6|0"],
+      "6|0"
+    ],
     "upiCashback": "10% up to 11000",
     "banksUpi": "UPI Eligible",
     "homeCreditSchemes": []
@@ -5089,12 +4937,14 @@
     "poonawallaSchemes": [],
     "iciciSchemes": [],
     "cholaSchemes": [],
-    "dmiSchemes": [      "15|0",
+    "dmiSchemes": [
+      "15|0",
       "12|0",
       "9|0",
       "8|0",
       "7|0",
-      "6|0"],
+      "6|0"
+    ],
     "upiCashback": "10% up to 9500",
     "banksUpi": "UPI Eligible",
     "homeCreditSchemes": []
@@ -5119,12 +4969,14 @@
     "poonawallaSchemes": [],
     "iciciSchemes": [],
     "cholaSchemes": [],
-    "dmiSchemes": [      "15|0",
+    "dmiSchemes": [
+      "15|0",
       "12|0",
       "9|0",
       "8|0",
       "7|0",
-      "6|0"],
+      "6|0"
+    ],
     "upiCashback": "10% up to 9500",
     "banksUpi": "UPI Eligible",
     "homeCreditSchemes": []
@@ -5149,12 +5001,14 @@
     "poonawallaSchemes": [],
     "iciciSchemes": [],
     "cholaSchemes": [],
-    "dmiSchemes": [      "15|0",
+    "dmiSchemes": [
+      "15|0",
       "12|0",
       "9|0",
       "8|0",
       "7|0",
-      "6|0"],
+      "6|0"
+    ],
     "upiCashback": "10% up to 9000",
     "banksUpi": "UPI Eligible",
     "homeCreditSchemes": []
@@ -5229,14 +5083,16 @@
     "poonawallaSchemes": [],
     "iciciSchemes": [],
     "cholaSchemes": [],
-    "dmiSchemes": [      "24|0",
+    "dmiSchemes": [
+      "24|0",
       "18|0",
       "15|0",
       "12|0",
       "9|0",
       "8|0",
       "7|0",
-      "6|0"],
+      "6|0"
+    ],
     "upiCashback": "10%",
     "banksUpi": "UPI Eligible",
     "homeCreditSchemes": []
@@ -5261,14 +5117,16 @@
     "poonawallaSchemes": [],
     "iciciSchemes": [],
     "cholaSchemes": [],
-    "dmiSchemes": [      "24|0",
+    "dmiSchemes": [
+      "24|0",
       "18|0",
       "15|0",
       "12|0",
       "9|0",
       "8|0",
       "7|0",
-      "6|0"],
+      "6|0"
+    ],
     "upiCashback": "10%",
     "banksUpi": "UPI Eligible",
     "homeCreditSchemes": []
@@ -5293,13 +5151,15 @@
     "poonawallaSchemes": [],
     "iciciSchemes": [],
     "cholaSchemes": [],
-    "dmiSchemes": [      "18|0",
+    "dmiSchemes": [
+      "18|0",
       "15|0",
       "12|0",
       "9|0",
       "8|0",
       "7|0",
-      "6|0"],
+      "6|0"
+    ],
     "upiCashback": "10%",
     "banksUpi": "UPI Eligible",
     "homeCreditSchemes": []
@@ -5324,14 +5184,16 @@
     "poonawallaSchemes": [],
     "iciciSchemes": [],
     "cholaSchemes": [],
-    "dmiSchemes": [      "24|0",
+    "dmiSchemes": [
+      "24|0",
       "18|0",
       "15|0",
       "12|0",
       "9|0",
       "8|0",
       "7|0",
-      "6|0"],
+      "6|0"
+    ],
     "upiCashback": "10%",
     "banksUpi": "UPI Eligible",
     "homeCreditSchemes": []
@@ -5356,14 +5218,16 @@
     "poonawallaSchemes": [],
     "iciciSchemes": [],
     "cholaSchemes": [],
-    "dmiSchemes": [      "24|0",
+    "dmiSchemes": [
+      "24|0",
       "18|0",
       "15|0",
       "12|0",
       "9|0",
       "8|0",
       "7|0",
-      "6|0"],
+      "6|0"
+    ],
     "upiCashback": "10%",
     "banksUpi": "UPI Eligible",
     "homeCreditSchemes": []
@@ -5388,13 +5252,15 @@
     "poonawallaSchemes": [],
     "iciciSchemes": [],
     "cholaSchemes": [],
-    "dmiSchemes": [      "18|0",
+    "dmiSchemes": [
+      "18|0",
       "15|0",
       "12|0",
       "9|0",
       "8|0",
       "7|0",
-      "6|0"],
+      "6|0"
+    ],
     "upiCashback": "10%",
     "banksUpi": "UPI Eligible",
     "homeCreditSchemes": []
@@ -5408,8 +5274,8 @@
     "minSwipe": 46999,
     "ccNce": "3m.6m",
     "ccLce": "9m,12m (Up to 4%)",
-    "ccEmiCashback": "10% up to 5000 3000",
-    "ccFullswipeCashback": "10% up to 5000 3000",
+    "ccEmiCashback": "10% up to 5000",
+    "ccFullswipeCashback": "3000",
     "banksEmi": "IDFC, DBS, SBI, Yes, BOB, HDFC, Kotak, Axis, IndusInd",
     "banksFullswipe": "IDFC, DBS, SBI, BOB, Yes, Kotak, IndusInd, Axis",
     "bajajSchemes": [
@@ -5587,11 +5453,13 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "9|0",
+    "dmiSchemes": [
+      "9|0",
       "8|0",
       "7|0",
-      "6|0"],
-    "upiCashback": "10% up to 5000 3000",
+      "6|0"
+    ],
+    "upiCashback": "3000",
     "banksUpi": "UPI Eligible",
     "homeCreditSchemes": [
       "18|0",
@@ -5628,8 +5496,8 @@
     "minSwipe": 51999,
     "ccNce": "3m.6m",
     "ccLce": "9m,12m (Up to 4%)",
-    "ccEmiCashback": "10% up to 5000 3000",
-    "ccFullswipeCashback": "10% up to 5000 3000",
+    "ccEmiCashback": "10% up to 5000",
+    "ccFullswipeCashback": "3000",
     "banksEmi": "IDFC, DBS, SBI, Yes, BOB, HDFC, Kotak, Axis, IndusInd",
     "banksFullswipe": "IDFC, DBS, SBI, BOB, Yes, Kotak, IndusInd, Axis",
     "bajajSchemes": [
@@ -5807,11 +5675,13 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "9|0",
+    "dmiSchemes": [
+      "9|0",
       "8|0",
       "7|0",
-      "6|0"],
-    "upiCashback": "10% up to 5000 3000",
+      "6|0"
+    ],
+    "upiCashback": "3000",
     "banksUpi": "UPI Eligible",
     "homeCreditSchemes": [
       "18|0",
@@ -5848,8 +5718,8 @@
     "minSwipe": 41999,
     "ccNce": "3m.6m",
     "ccLce": "9m,12m (Up to 4%)",
-    "ccEmiCashback": "10% up to 5000 3000",
-    "ccFullswipeCashback": "10% up to 5000 3000",
+    "ccEmiCashback": "10% up to 5000",
+    "ccFullswipeCashback": "3000",
     "banksEmi": "IDFC, DBS, SBI, Yes, BOB, HDFC, Kotak, Axis, IndusInd, OneCard",
     "banksFullswipe": "IDFC, DBS, SBI, BOB, Yes, Kotak, IndusInd, Axis",
     "bajajSchemes": [
@@ -6027,11 +5897,13 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "9|0",
+    "dmiSchemes": [
+      "9|0",
       "8|0",
       "7|0",
-      "6|0"],
-    "upiCashback": "10% up to 5000 3000",
+      "6|0"
+    ],
+    "upiCashback": "3000",
     "banksUpi": "UPI Eligible",
     "homeCreditSchemes": [
       "18|0",
@@ -6068,8 +5940,8 @@
     "minSwipe": 39999,
     "ccNce": "3m.6m",
     "ccLce": "9m,12m (Up to 4%)",
-    "ccEmiCashback": "10% up to 4000 2000",
-    "ccFullswipeCashback": "10% up to 4000 2000",
+    "ccEmiCashback": "10% up to 4000",
+    "ccFullswipeCashback": "2000",
     "banksEmi": "IDFC, DBS, SBI, Yes, BOB, HDFC, Kotak, Axis, IndusInd",
     "banksFullswipe": "IDFC, DBS, SBI, BOB, Yes, Kotak, IndusInd, Axis",
     "bajajSchemes": [
@@ -6242,11 +6114,13 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "9|0",
+    "dmiSchemes": [
+      "9|0",
       "8|0",
       "7|0",
-      "6|0"],
-    "upiCashback": "10% up to 4000 2000",
+      "6|0"
+    ],
+    "upiCashback": "2000",
     "banksUpi": "UPI Eligible",
     "homeCreditSchemes": [
       "18|0",
@@ -6283,8 +6157,8 @@
     "minSwipe": 35999,
     "ccNce": "3m.6m",
     "ccLce": "9m,12m (Up to 4%)",
-    "ccEmiCashback": "10% up to 4000 2000",
-    "ccFullswipeCashback": "10% up to 4000 2000",
+    "ccEmiCashback": "10% up to 4000",
+    "ccFullswipeCashback": "2000",
     "banksEmi": "IDFC, DBS, SBI, Yes, BOB, HDFC, Kotak, Axis, IndusInd, OneCard",
     "banksFullswipe": "IDFC, DBS, SBI, BOB, Yes, Kotak, IndusInd, Axis",
     "bajajSchemes": [
@@ -6457,11 +6331,13 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "9|0",
+    "dmiSchemes": [
+      "9|0",
       "8|0",
       "7|0",
-      "6|0"],
-    "upiCashback": "10% up to 4000 2000",
+      "6|0"
+    ],
+    "upiCashback": "2000",
     "banksUpi": "UPI Eligible",
     "homeCreditSchemes": [
       "18|0",
@@ -6676,12 +6552,14 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "15|0",
+    "dmiSchemes": [
+      "15|0",
       "12|0",
       "9|0",
       "8|0",
       "7|0",
-      "6|0"],
+      "6|0"
+    ],
     "upiCashback": "10%",
     "banksUpi": "UPI Eligible",
     "homeCreditSchemes": [
@@ -6896,12 +6774,14 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "15|0",
+    "dmiSchemes": [
+      "15|0",
       "12|0",
       "9|0",
       "8|0",
       "7|0",
-      "6|0"],
+      "6|0"
+    ],
     "upiCashback": "10%",
     "banksUpi": "UPI Eligible",
     "homeCreditSchemes": [
@@ -7116,12 +6996,14 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "15|0",
+    "dmiSchemes": [
+      "15|0",
       "12|0",
       "9|0",
       "8|0",
       "7|0",
-      "6|0"],
+      "6|0"
+    ],
     "upiCashback": "10%",
     "banksUpi": "UPI Eligible",
     "homeCreditSchemes": [
@@ -7320,10 +7202,12 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "9|0",
+    "dmiSchemes": [
+      "9|0",
       "8|0",
       "7|0",
-      "6|0"],
+      "6|0"
+    ],
     "upiCashback": "5% up to 1500",
     "banksUpi": "UPI Eligible",
     "homeCreditSchemes": [
@@ -7521,10 +7405,12 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "9|0",
+    "dmiSchemes": [
+      "9|0",
       "8|0",
       "7|0",
-      "6|0"],
+      "6|0"
+    ],
     "upiCashback": "5% up to 1500",
     "banksUpi": "UPI Eligible",
     "homeCreditSchemes": [
@@ -7560,8 +7446,8 @@
     "minSwipe": 21999,
     "ccNce": "3m",
     "ccLce": "6m,9m,12m (Up to 2.75%)",
-    "ccEmiCashback": "10% up to 2000 NA",
-    "ccFullswipeCashback": "10% up to 2000 NA",
+    "ccEmiCashback": "10% up to 2000",
+    "ccFullswipeCashback": "NA",
     "banksEmi": "IDFC, DBS, SBI, Yes, BOB, HDFC, Axis, IndusInd",
     "banksFullswipe": "NA",
     "bajajSchemes": [],
@@ -7585,8 +7471,8 @@
     "minSwipe": 19999,
     "ccNce": "3m",
     "ccLce": "6m,9m,12m (Up to 2.75%)",
-    "ccEmiCashback": "10% up to 2000 NA",
-    "ccFullswipeCashback": "10% up to 2000 NA",
+    "ccEmiCashback": "10% up to 2000",
+    "ccFullswipeCashback": "NA",
     "banksEmi": "IDFC, DBS, SBI, Yes, BOB, HDFC, Axis, IndusInd, OneCard",
     "banksFullswipe": "NA",
     "bajajSchemes": [],
@@ -7610,8 +7496,8 @@
     "minSwipe": 15999,
     "ccNce": "3m",
     "ccLce": "6m,9m,12m (Up to 2.75%)",
-    "ccEmiCashback": "10% up to 1500 NA",
-    "ccFullswipeCashback": "10% up to 1500 NA",
+    "ccEmiCashback": "10% up to 1500",
+    "ccFullswipeCashback": "NA",
     "banksEmi": "IDFC, DBS, SBI, Yes, BOB, HDFC, Axis, IndusInd, OneCard",
     "banksFullswipe": "NA",
     "bajajSchemes": [
@@ -7762,8 +7648,10 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "7|0",
-      "6|0"],
+    "dmiSchemes": [
+      "7|0",
+      "6|0"
+    ],
     "upiCashback": "NA",
     "banksUpi": "Not Eligible",
     "homeCreditSchemes": [
@@ -7795,8 +7683,8 @@
     "minSwipe": 13999,
     "ccNce": "3m",
     "ccLce": "6m,9m,12m (Up to 2.75%)",
-    "ccEmiCashback": "10% up to 1500 NA",
-    "ccFullswipeCashback": "10% up to 1500 NA",
+    "ccEmiCashback": "10% up to 1500",
+    "ccFullswipeCashback": "NA",
     "banksEmi": "IDFC, DBS, SBI, Yes, BOB, HDFC, Axis, IndusInd, OneCard",
     "banksFullswipe": "NA",
     "bajajSchemes": [
@@ -7947,8 +7835,10 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "7|0",
-      "6|0"],
+    "dmiSchemes": [
+      "7|0",
+      "6|0"
+    ],
     "upiCashback": "NA",
     "banksUpi": "Not Eligible",
     "homeCreditSchemes": [
@@ -8136,10 +8026,12 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "9|0",
+    "dmiSchemes": [
+      "9|0",
       "8|0",
       "7|0",
-      "6|0"],
+      "6|0"
+    ],
     "upiCashback": "NA",
     "banksUpi": "Not Eligible",
     "homeCreditSchemes": [
@@ -8329,10 +8221,12 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "9|0",
+    "dmiSchemes": [
+      "9|0",
       "8|0",
       "7|0",
-      "6|0"],
+      "6|0"
+    ],
     "upiCashback": "NA",
     "banksUpi": "Not Eligible",
     "homeCreditSchemes": [
@@ -8518,9 +8412,11 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "8|0",
+    "dmiSchemes": [
+      "8|0",
       "7|0",
-      "6|0"],
+      "6|0"
+    ],
     "upiCashback": "NA",
     "banksUpi": "Not Eligible",
     "homeCreditSchemes": [
@@ -8705,9 +8601,11 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "8|0",
+    "dmiSchemes": [
+      "8|0",
       "7|0",
-      "6|0"],
+      "6|0"
+    ],
     "upiCashback": "NA",
     "banksUpi": "Not Eligible",
     "homeCreditSchemes": [
@@ -8892,9 +8790,11 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "8|0",
+    "dmiSchemes": [
+      "8|0",
       "7|0",
-      "6|0"],
+      "6|0"
+    ],
     "upiCashback": "NA",
     "banksUpi": "Not Eligible",
     "homeCreditSchemes": [
@@ -9079,8 +8979,10 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "7|0",
-      "6|0"],
+    "dmiSchemes": [
+      "7|0",
+      "6|0"
+    ],
     "upiCashback": "NA",
     "banksUpi": "Not Eligible",
     "homeCreditSchemes": [
@@ -9255,9 +9157,11 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "8|0",
+    "dmiSchemes": [
+      "8|0",
       "7|0",
-      "6|0"],
+      "6|0"
+    ],
     "upiCashback": "NA",
     "banksUpi": "Not Eligible",
     "homeCreditSchemes": [
@@ -9430,9 +9334,11 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "8|0",
+    "dmiSchemes": [
+      "8|0",
       "7|0",
-      "6|0"],
+      "6|0"
+    ],
     "upiCashback": "NA",
     "banksUpi": "Not Eligible",
     "homeCreditSchemes": [
@@ -9585,7 +9491,9 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "6|0"],
+    "dmiSchemes": [
+      "6|0"
+    ],
     "upiCashback": "NA",
     "banksUpi": "Not Eligible",
     "homeCreditSchemes": [
@@ -9732,8 +9640,10 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "9|0",
-      "6|0"],
+    "dmiSchemes": [
+      "9|0",
+      "6|0"
+    ],
     "upiCashback": "NA",
     "banksUpi": "Not Eligible",
     "homeCreditSchemes": [
@@ -9769,8 +9679,10 @@
     "poonawallaSchemes": [],
     "iciciSchemes": [],
     "cholaSchemes": [],
-    "dmiSchemes": [      "9|0",
-      "6|0"],
+    "dmiSchemes": [
+      "9|0",
+      "6|0"
+    ],
     "upiCashback": "NA",
     "banksUpi": "Not Eligible",
     "homeCreditSchemes": []
@@ -9911,7 +9823,9 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "6|0"],
+    "dmiSchemes": [
+      "6|0"
+    ],
     "upiCashback": "NA",
     "banksUpi": "Not Eligible",
     "homeCreditSchemes": [
@@ -10073,9 +9987,11 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "8|0",
+    "dmiSchemes": [
+      "8|0",
       "7|0",
-      "6|0"],
+      "6|0"
+    ],
     "upiCashback": "NA",
     "banksUpi": "Not Eligible",
     "homeCreditSchemes": [
@@ -10239,8 +10155,10 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "7|0",
-      "6|0"],
+    "dmiSchemes": [
+      "7|0",
+      "6|0"
+    ],
     "upiCashback": "NA",
     "banksUpi": "Not Eligible",
     "homeCreditSchemes": [
@@ -10407,8 +10325,10 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "7|0",
-      "6|0"],
+    "dmiSchemes": [
+      "7|0",
+      "6|0"
+    ],
     "upiCashback": "NA",
     "banksUpi": "Not Eligible",
     "homeCreditSchemes": [
@@ -10575,8 +10495,10 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "7|0",
-      "6|0"],
+    "dmiSchemes": [
+      "7|0",
+      "6|0"
+    ],
     "upiCashback": "NA",
     "banksUpi": "Not Eligible",
     "homeCreditSchemes": [
@@ -10641,8 +10563,8 @@
     "minSwipe": 12999,
     "ccNce": "3m, 6m",
     "ccLce": "9m, 12m (Up to 4%)",
-    "ccEmiCashback": "1500 (1-6 Sep)\n500 (7-24 Sep)\n1500 (25-30 Sep)",
-    "ccFullswipeCashback": "1500 (1-6 Sep)\n500 (7-24 Sep)\n1500 (25-30 Sep)",
+    "ccEmiCashback": "1500 (1-6 Sep) / 500   (7-24 Sep) / 1500 (25-30 Sep)",
+    "ccFullswipeCashback": "1500 (1-6 Sep) / 500   (7-24 Sep) / 1500 (25-30 Sep)",
     "banksEmi": "IDFC, DBS, SBI, Yes, BOB, IndusInd",
     "banksFullswipe": "IDFC, DBS, SBI, BOB, Yes, IndusInd",
     "bajajSchemes": [],
@@ -10666,8 +10588,8 @@
     "minSwipe": 14999,
     "ccNce": "3m, 6m",
     "ccLce": "9m, 12m (Up to 4%)",
-    "ccEmiCashback": "1500 (1-6 Sep)\n500 (7-24 Sep)\n1500 (25-30 Sep)",
-    "ccFullswipeCashback": "1500 (1-6 Sep)\n500 (7-24 Sep)\n1500 (25-30 Sep)",
+    "ccEmiCashback": "1500 (1-6 Sep) / 500   (7-24 Sep) / 1500 (25-30 Sep)",
+    "ccFullswipeCashback": "1500 (1-6 Sep) / 500   (7-24 Sep) / 1500 (25-30 Sep)",
     "banksEmi": "IDFC, DBS, SBI, Yes, BOB, IndusInd",
     "banksFullswipe": "IDFC, DBS, SBI, BOB, Yes, IndusInd",
     "bajajSchemes": [],
@@ -10762,8 +10684,10 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "7|0",
-      "6|0"],
+    "dmiSchemes": [
+      "7|0",
+      "6|0"
+    ],
     "upiCashback": "NA",
     "banksUpi": "Not Eligible",
     "homeCreditSchemes": []
@@ -10868,8 +10792,10 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "7|0",
-      "6|0"],
+    "dmiSchemes": [
+      "7|0",
+      "6|0"
+    ],
     "upiCashback": "NA",
     "banksUpi": "Not Eligible",
     "homeCreditSchemes": []
@@ -10974,7 +10900,9 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "6|0"],
+    "dmiSchemes": [
+      "6|0"
+    ],
     "upiCashback": "NA",
     "banksUpi": "Not Eligible",
     "homeCreditSchemes": []
@@ -11328,7 +11256,9 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "6|0"],
+    "dmiSchemes": [
+      "6|0"
+    ],
     "upiCashback": "NA",
     "banksUpi": "Not Eligible",
     "homeCreditSchemes": []
@@ -11542,8 +11472,8 @@
     "minSwipe": 25999,
     "ccNce": "3m, 6m, 9m",
     "ccLce": "12m (up to 4%)",
-    "ccEmiCashback": "4000 (1-7 Sep)\n2000 (8-23 Sep)\n4000 (24-30 Sep)",
-    "ccFullswipeCashback": "4000 (1-7 Sep)\n2000 (8-23 Sep)\n4000 (24-30 Sep)",
+    "ccEmiCashback": "4000 (1-7 Sep) / 2000   (8-23 Sep) / 4000 (24-30 Sep)",
+    "ccFullswipeCashback": "4000 (1-7 Sep) / 2000   (8-23 Sep) / 4000 (24-30 Sep)",
     "banksEmi": "IDFC, DBS, SBI, Yes, BOB, IndusInd",
     "banksFullswipe": "IDFC, DBS, SBI, BOB, Yes, IndusInd",
     "bajajSchemes": [],
@@ -11965,7 +11895,9 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "6|0"],
+    "dmiSchemes": [
+      "6|0"
+    ],
     "upiCashback": "NA",
     "banksUpi": "Not Eligible",
     "homeCreditSchemes": []
@@ -12094,7 +12026,9 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "6|0"],
+    "dmiSchemes": [
+      "6|0"
+    ],
     "upiCashback": "NA",
     "banksUpi": "Not Eligible",
     "homeCreditSchemes": []
@@ -12214,7 +12148,9 @@
       "8|2",
       "9|3"
     ],
-    "dmiSchemes": [      "6|0"],
+    "dmiSchemes": [
+      "6|0"
+    ],
     "upiCashback": "NA",
     "banksUpi": "Not Eligible",
     "homeCreditSchemes": []
