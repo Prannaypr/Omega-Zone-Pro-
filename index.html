@@ -256,43 +256,6 @@
         *, *::before, *::after { box-sizing:border-box; }
         pre, code { white-space:pre-wrap; word-break:break-word; }
     </style>
-
-    <!-- Firebase Authentication -->
-    <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-      import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
-
-      const firebaseConfig = {
-        apiKey: "AIzaSyBe-bpxvFI19bek_A1VVjt7SmAgE2pbYT4",
-        authDomain: "omega-zone-903c1.firebaseapp.com",
-        projectId: "omega-zone-903c1",
-        storageBucket: "omega-zone-903c1.firebasestorage.app",
-        messagingSenderId: "851944013871",
-        appId: "1:851944013871:web:fac3771cb4539a134c06da",
-        measurementId: "G-NTBT8L2R2N"
-      };
-
-      const firebaseApp = initializeApp(firebaseConfig);
-      const auth = getAuth(firebaseApp);
-      window.omegaFirebaseAuth = auth;
-
-      window.omegaFirebaseLogin = async (email, password) => {
-        return signInWithEmailAndPassword(auth, email, password);
-      };
-
-      window.omegaFirebaseLogout = async () => {
-        return signOut(auth);
-      };
-
-      onAuthStateChanged(auth, (user) => {
-        if (window.app && typeof window.app.firebaseSetUser === 'function') {
-          window.app.firebaseSetUser(user);
-        } else {
-          window.__omegaFirebaseUser = user || null;
-        }
-      });
-    </script>
-
 </head>
 <body x-data="rateCardApp()"
       :class="darkMode ? 'dark bg-black text-slate-100' : 'bg-[#F2F5F9] text-slate-900'"
@@ -319,57 +282,7 @@
         </div>
     </div>
 
-    <!-- Firebase Login Screen -->
-    <div x-show="!authReady || !isLoggedIn"
-         x-cloak
-         class="fixed inset-0 z-[400] flex items-center justify-center p-5 bg-[#05070b] text-white overflow-y-auto">
-        <div class="absolute inset-0 pointer-events-none">
-            <div class="absolute -top-20 -left-20 w-72 h-72 bg-blue-600/20 rounded-full blur-[100px]"></div>
-            <div class="absolute -bottom-20 -right-20 w-72 h-72 bg-indigo-600/20 rounded-full blur-[100px]"></div>
-        </div>
-
-        <div class="relative w-full max-w-md rounded-[32px] border border-white/10 bg-white/[0.06] backdrop-blur-2xl shadow-2xl p-7 sm:p-9">
-            <div class="text-center mb-8">
-                <div class="mx-auto w-16 h-16 rounded-2xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center mb-5">
-                    <span class="text-3xl font-black text-blue-400">Ω</span>
-                </div>
-                <h1 class="text-3xl font-black tracking-tight">Omega Zone</h1>
-                <p class="text-blue-400 text-[10px] font-black uppercase tracking-[0.3em] mt-2">Retail Engine</p>
-                <p class="text-slate-400 text-xs mt-4">Sign in with your authorized Firebase account</p>
-            </div>
-
-            <div x-show="!authReady" class="py-8 text-center">
-                <div class="mx-auto h-8 w-8 rounded-full border-2 border-blue-400 border-t-transparent animate-spin"></div>
-                <p class="text-xs text-slate-400 mt-4">Checking secure session...</p>
-            </div>
-
-            <form x-show="authReady && !isLoggedIn" @submit.prevent="firebaseLogin()" class="space-y-4">
-                <div>
-                    <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Email</label>
-                    <input x-model.trim="loginEmail" type="email" autocomplete="email" required
-                           placeholder="Enter your email"
-                           class="w-full px-4 py-3.5 rounded-2xl bg-black/30 border border-white/10 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                    <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Password</label>
-                    <input x-model="loginPassword" type="password" autocomplete="current-password" required
-                           placeholder="Enter your password"
-                           class="w-full px-4 py-3.5 rounded-2xl bg-black/30 border border-white/10 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-
-                <div x-show="loginError" x-text="loginError" x-transition
-                     class="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-300 text-xs font-semibold"></div>
-
-                <button type="submit" :disabled="loginLoading"
-                        class="w-full py-4 rounded-2xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-black uppercase tracking-widest text-xs shadow-lg shadow-blue-600/20 active:scale-[.98] transition-all">
-                    <span x-show="!loginLoading">Sign In</span>
-                    <span x-show="loginLoading">Signing In...</span>
-                </button>
-            </form>
-
-            <p class="text-center text-[9px] text-slate-500 mt-6">Access is controlled by Firebase Authentication.</p>
-        </div>
-    </div>
+    <!-- Login Screen removed -->
 
     <!-- Expiry Overlay Removed -->
 
@@ -776,7 +689,6 @@
                 <div>
                     <h2 class="text-2xl font-black uppercase tracking-tighter">Omega User</h2>
                     <p class="text-xs text-blue-500 font-bold uppercase tracking-widest">Saurashtra 1 & 4</p>
-                    <p class="text-[10px] text-slate-400 mt-1 truncate max-w-[260px]" x-text="currentUser?.email || 'Firebase User'"></p>
                 </div>
             </div>
 
@@ -803,8 +715,7 @@
                 </div>
             </div>
 
-            <button @click="firebaseLogout()"
-                    class="w-full py-4 bg-red-500/10 text-red-500 rounded-[20px] font-black uppercase tracking-widest text-xs border border-red-500/20 hover:bg-red-500/20 active:scale-[.98] transition-all">
+            <button class="w-full py-4 bg-red-500/10 text-red-500 rounded-[20px] font-black uppercase tracking-widest text-xs border border-red-500/20">
                 Log Out
             </button>
         </div>
@@ -1150,52 +1061,6 @@
                 productSortBy: 'default',
                 compareList: [],
                 showCompareModal: false,
-                authReady: false,
-                isLoggedIn: false,
-                currentUser: null,
-                loginEmail: '',
-                loginPassword: '',
-                loginError: '',
-                loginLoading: false,
-
-                firebaseSetUser(user) {
-                    this.currentUser = user || null;
-                    this.isLoggedIn = !!user;
-                    this.authReady = true;
-                    this.loginLoading = false;
-                    if (user) {
-                        this.loginError = '';
-                        this.loginPassword = '';
-                        this.currentTab = 'Affordability';
-                    }
-                },
-
-                async firebaseLogin() {
-                    this.loginError = '';
-                    this.loginLoading = true;
-                    try {
-                        if (!window.omegaFirebaseLogin) throw new Error('Firebase Authentication is not loaded.');
-                        await window.omegaFirebaseLogin(this.loginEmail, this.loginPassword);
-                    } catch (error) {
-                        const messages = {
-                            'auth/invalid-credential': 'Invalid email or password.',
-                            'auth/invalid-email': 'Please enter a valid email address.',
-                            'auth/user-disabled': 'This account has been disabled.',
-                            'auth/too-many-requests': 'Too many attempts. Please try again later.',
-                            'auth/network-request-failed': 'Network error. Check your internet connection.'
-                        };
-                        this.loginError = messages[error?.code] || error?.message || 'Login failed.';
-                        this.loginLoading = false;
-                    }
-                },
-
-                async firebaseLogout() {
-                    try {
-                        if (window.omegaFirebaseLogout) await window.omegaFirebaseLogout();
-                    } catch (error) {
-                        this.loginError = error?.message || 'Logout failed.';
-                    }
-                },
 
                 handleBack() {
                     if (this.selectedModel) {
@@ -1219,9 +1084,6 @@
                 },
                 init() {
                     window.app = this; // Expose to global scope for Java to call
-                    if (window.__omegaFirebaseUser !== undefined) {
-                        this.firebaseSetUser(window.__omegaFirebaseUser);
-                    }
                     // Load state from localStorage
                     const savedState = localStorage.getItem('omegaZoneState');
                     if (savedState) {
