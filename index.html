@@ -260,7 +260,15 @@
     <!-- Firebase Authentication -->
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-      import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+      import {
+        getAuth,
+        onAuthStateChanged,
+        signInWithEmailAndPassword,
+        createUserWithEmailAndPassword,
+        sendPasswordResetEmail,
+        signOut,
+        updateProfile
+      } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyBe-bpxvFI19bek_A1VVjt7SmAgE2pbYT4",
@@ -272,12 +280,28 @@
         measurementId: "G-NTBT8L2R2N"
       };
 
+      // Paste your deployed Google Apps Script Web App URL here.
+      // Example: https://script.google.com/macros/s/XXXXXXXX/exec
+      window.OMEGA_SIGNUP_SHEET_URL = "PASTE_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
+
       const firebaseApp = initializeApp(firebaseConfig);
       const auth = getAuth(firebaseApp);
       window.omegaFirebaseAuth = auth;
 
       window.omegaFirebaseLogin = async (email, password) => {
         return signInWithEmailAndPassword(auth, email, password);
+      };
+
+      window.omegaFirebaseSignup = async (name, email, password) => {
+        const credential = await createUserWithEmailAndPassword(auth, email, password);
+        if (name && credential.user) {
+          await updateProfile(credential.user, { displayName: name });
+        }
+        return credential;
+      };
+
+      window.omegaFirebaseForgotPassword = async (email) => {
+        return sendPasswordResetEmail(auth, email);
       };
 
       window.omegaFirebaseLogout = async () => {
@@ -319,7 +343,7 @@
         </div>
     </div>
 
-    <!-- Firebase Login Screen -->
+    <!-- Firebase Authentication Screen -->
     <div x-show="!authReady || !isLoggedIn"
          x-cloak
          class="fixed inset-0 z-[400] flex items-center justify-center p-5 bg-[#05070b] text-white overflow-y-auto">
@@ -329,13 +353,12 @@
         </div>
 
         <div class="relative w-full max-w-md rounded-[32px] border border-white/10 bg-white/[0.06] backdrop-blur-2xl shadow-2xl p-7 sm:p-9">
-            <div class="text-center mb-8">
+            <div class="text-center mb-7">
                 <div class="mx-auto w-16 h-16 rounded-2xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center mb-5">
                     <span class="text-3xl font-black text-blue-400">Ω</span>
                 </div>
                 <h1 class="text-3xl font-black tracking-tight">Omega Zone</h1>
                 <p class="text-blue-400 text-[10px] font-black uppercase tracking-[0.3em] mt-2">Retail Engine</p>
-                <p class="text-slate-400 text-xs mt-4">Sign in with your authorized Firebase account</p>
             </div>
 
             <div x-show="!authReady" class="py-8 text-center">
@@ -343,31 +366,122 @@
                 <p class="text-xs text-slate-400 mt-4">Checking secure session...</p>
             </div>
 
-            <form x-show="authReady && !isLoggedIn" @submit.prevent="firebaseLogin()" class="space-y-4">
+            <template x-if="authReady && !isLoggedIn">
                 <div>
-                    <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Email</label>
-                    <input x-model.trim="loginEmail" type="email" autocomplete="email" required
-                           placeholder="Enter your email"
-                           class="w-full px-4 py-3.5 rounded-2xl bg-black/30 border border-white/10 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <!-- Auth mode tabs -->
+                    <div class="grid grid-cols-2 bg-black/30 border border-white/10 rounded-2xl p-1 mb-5">
+                        <button type="button"
+                                @click="authMode='login'; loginError=''; signupError=''; forgotError=''"
+                                :class="authMode==='login' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400'"
+                                class="py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
+                            Sign In
+                        </button>
+                        <button type="button"
+                                @click="authMode='signup'; loginError=''; signupError=''; forgotError=''"
+                                :class="authMode==='signup' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400'"
+                                class="py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
+                            Sign Up
+                        </button>
+                    </div>
+
+                    <!-- Sign In -->
+                    <form x-show="authMode==='login'" @submit.prevent="firebaseLogin()" class="space-y-4">
+                        <div>
+                            <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Email ID</label>
+                            <input x-model.trim="loginEmail" type="email" autocomplete="email" required
+                                   placeholder="Enter your email ID"
+                                   class="w-full px-4 py-3.5 rounded-2xl bg-black/30 border border-white/10 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Password</label>
+                            <input x-model="loginPassword" type="password" autocomplete="current-password" required
+                                   placeholder="Enter your password"
+                                   class="w-full px-4 py-3.5 rounded-2xl bg-black/30 border border-white/10 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+
+                        <div x-show="loginError" x-text="loginError" x-transition
+                             class="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-300 text-xs font-semibold"></div>
+
+                        <button type="submit" :disabled="loginLoading"
+                                class="w-full py-4 rounded-2xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-black uppercase tracking-widest text-xs shadow-lg shadow-blue-600/20 active:scale-[.98] transition-all">
+                            <span x-show="!loginLoading">Sign In</span>
+                            <span x-show="loginLoading">Signing In...</span>
+                        </button>
+
+                        <button type="button" @click="authMode='forgot'; forgotEmail=loginEmail; forgotError=''; forgotSuccess=''"
+                                class="w-full text-center text-[10px] text-blue-400 hover:text-blue-300 font-bold uppercase tracking-widest">
+                            Forgot Password?
+                        </button>
+                    </form>
+
+                    <!-- Sign Up -->
+                    <form x-show="authMode==='signup'" @submit.prevent="firebaseSignup()" class="space-y-4">
+                        <div>
+                            <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Name</label>
+                            <input x-model.trim="signupName" type="text" autocomplete="name" required
+                                   placeholder="Enter your name"
+                                   class="w-full px-4 py-3.5 rounded-2xl bg-black/30 border border-white/10 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Email ID</label>
+                            <input x-model.trim="signupEmail" type="email" autocomplete="email" required
+                                   placeholder="Enter your email ID"
+                                   class="w-full px-4 py-3.5 rounded-2xl bg-black/30 border border-white/10 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Set Password</label>
+                            <input x-model="signupPassword" type="password" autocomplete="new-password" minlength="6" required
+                                   placeholder="Create a password (6+ characters)"
+                                   class="w-full px-4 py-3.5 rounded-2xl bg-black/30 border border-white/10 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+
+                        <div x-show="signupError" x-text="signupError" x-transition
+                             class="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-300 text-xs font-semibold"></div>
+
+                        <div x-show="signupSuccess" x-text="signupSuccess" x-transition
+                             class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs font-semibold"></div>
+
+                        <button type="submit" :disabled="signupLoading"
+                                class="w-full py-4 rounded-2xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-black uppercase tracking-widest text-xs shadow-lg shadow-blue-600/20 active:scale-[.98] transition-all">
+                            <span x-show="!signupLoading">Create Account</span>
+                            <span x-show="signupLoading">Creating...</span>
+                        </button>
+                    </form>
+
+                    <!-- Forgot Password -->
+                    <form x-show="authMode==='forgot'" @submit.prevent="firebaseForgotPassword()" class="space-y-4">
+                        <div class="text-center mb-2">
+                            <h2 class="text-lg font-black">Reset Password</h2>
+                            <p class="text-[10px] text-slate-400 mt-1">Enter your registered email ID.</p>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Email ID</label>
+                            <input x-model.trim="forgotEmail" type="email" autocomplete="email" required
+                                   placeholder="Enter your registered email"
+                                   class="w-full px-4 py-3.5 rounded-2xl bg-black/30 border border-white/10 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+
+                        <div x-show="forgotError" x-text="forgotError" x-transition
+                             class="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-300 text-xs font-semibold"></div>
+
+                        <div x-show="forgotSuccess" x-text="forgotSuccess" x-transition
+                             class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs font-semibold"></div>
+
+                        <button type="submit" :disabled="forgotLoading"
+                                class="w-full py-4 rounded-2xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-black uppercase tracking-widest text-xs shadow-lg shadow-blue-600/20 active:scale-[.98] transition-all">
+                            <span x-show="!forgotLoading">Send Reset Link</span>
+                            <span x-show="forgotLoading">Sending...</span>
+                        </button>
+
+                        <button type="button" @click="authMode='login'; forgotError=''; forgotSuccess=''"
+                                class="w-full text-center text-[10px] text-blue-400 hover:text-blue-300 font-bold uppercase tracking-widest">
+                            Back to Sign In
+                        </button>
+                    </form>
                 </div>
-                <div>
-                    <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Password</label>
-                    <input x-model="loginPassword" type="password" autocomplete="current-password" required
-                           placeholder="Enter your password"
-                           class="w-full px-4 py-3.5 rounded-2xl bg-black/30 border border-white/10 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
+            </template>
 
-                <div x-show="loginError" x-text="loginError" x-transition
-                     class="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-300 text-xs font-semibold"></div>
-
-                <button type="submit" :disabled="loginLoading"
-                        class="w-full py-4 rounded-2xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-black uppercase tracking-widest text-xs shadow-lg shadow-blue-600/20 active:scale-[.98] transition-all">
-                    <span x-show="!loginLoading">Sign In</span>
-                    <span x-show="loginLoading">Signing In...</span>
-                </button>
-            </form>
-
-            <p class="text-center text-[9px] text-slate-500 mt-6">Access is controlled by Firebase Authentication.</p>
+            <p class="text-center text-[9px] text-slate-500 mt-6">Secure access powered by Firebase Authentication.</p>
         </div>
     </div>
 
@@ -774,9 +888,9 @@
                     <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                 </div>
                 <div>
-                    <h2 class="text-2xl font-black uppercase tracking-tighter">Omega User</h2>
+                    <h2 class="text-2xl font-black uppercase tracking-tighter" x-text="currentUser?.displayName || 'Omega Zone'"></h2>
                     <p class="text-xs text-blue-500 font-bold uppercase tracking-widest">Saurashtra 1 & 4</p>
-                    <p class="text-[10px] text-slate-400 mt-1 truncate max-w-[260px]" x-text="currentUser?.email || 'Firebase User'"></p>
+                    <p class="text-[10px] text-slate-400 mt-1 truncate max-w-[260px]" x-text="currentUser?.email || ''"></p>
                 </div>
             </div>
 
@@ -893,6 +1007,54 @@
                     <button @click="activeTab = 'terms'" :class="activeTab === 'terms' ? 'border-b-2 border-blue-600 text-blue-600 font-bold bg-blue-50/50 rounded-t-lg dark:bg-blue-500/10' : 'text-slate-500 hover:text-slate-800 dark:text-slate-500 dark:hover:text-slate-300'" class="pb-2.5 px-3 text-xs whitespace-nowrap transition">
                         📋 Terms
                     </button>
+                </div>
+
+                <!-- September 2026 Offer Highlights (text-only, sourced from supplied offer sheets) -->
+                <div x-show="activeTab === 'paper-finance' && selectedModel?.series !== 'Extender Kit'" class="space-y-4">
+                    <div class="bg-gradient-to-r from-blue-50 via-white to-indigo-50 dark:from-blue-950/30 dark:via-black/20 dark:to-indigo-950/20 rounded-2xl border border-blue-100 dark:border-blue-900/40 p-4 shadow-sm">
+                        <div class="flex items-center justify-between gap-3 mb-3">
+                            <div>
+                                <p class="text-[9px] font-black uppercase tracking-[0.18em] text-blue-600 dark:text-blue-400">September 2026</p>
+                                <h3 class="text-base font-black text-slate-900 dark:text-white">Key Model Offer Highlights</h3>
+                            </div>
+                            <span class="text-[8px] font-black uppercase px-2.5 py-1 rounded-full bg-blue-600 text-white">Text Offer</span>
+                        </div>
+                        <template x-if="offerHighlights[selectedModel?.name]">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <div class="bg-white/80 dark:bg-black/30 rounded-xl p-3 border border-slate-200 dark:border-white/10">
+                                    <p class="text-[8px] font-black uppercase tracking-widest text-slate-400 mb-1">Card Offers</p>
+                                    <p class="text-[10px] font-bold text-slate-800 dark:text-slate-200" x-text="offerHighlights[selectedModel.name].card"></p>
+                                </div>
+                                <div class="bg-white/80 dark:bg-black/30 rounded-xl p-3 border border-slate-200 dark:border-white/10">
+                                    <p class="text-[8px] font-black uppercase tracking-widest text-slate-400 mb-1">Other Paper Finance</p>
+                                    <p class="text-[10px] font-bold text-slate-800 dark:text-slate-200" x-text="offerHighlights[selectedModel.name].paper"></p>
+                                </div>
+                                <div class="bg-white/80 dark:bg-black/30 rounded-xl p-3 border border-slate-200 dark:border-white/10">
+                                    <p class="text-[8px] font-black uppercase tracking-widest text-slate-400 mb-1">Bajaj</p>
+                                    <p class="text-[10px] font-bold text-slate-800 dark:text-slate-200" x-text="offerHighlights[selectedModel.name].bajaj"></p>
+                                </div>
+                            </div>
+                        </template>
+                        <template x-if="!offerHighlights[selectedModel?.name]">
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400">Use the partner rate-card, card cashback and V-Shield sections below for this model.</p>
+                        </template>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div class="bg-emerald-50 dark:bg-emerald-950/20 rounded-xl border border-emerald-200 dark:border-emerald-900/40 p-3">
+                            <p class="text-[8px] font-black uppercase tracking-widest text-emerald-700 dark:text-emerald-400">V70 / V70 Elite UPI + Full Swipe</p>
+                            <p class="text-[10px] font-bold text-emerald-900 dark:text-emerald-200 mt-1">Up to ₹3,000 instant cashback on eligible UPI & brand Full Swipe transactions with selected credit cards on V70 / V70 Elite.</p>
+                        </div>
+                        <div class="bg-indigo-50 dark:bg-indigo-950/20 rounded-xl border border-indigo-200 dark:border-indigo-900/40 p-3">
+                            <p class="text-[8px] font-black uppercase tracking-widest text-indigo-700 dark:text-indigo-400">Y Series Special Offer</p>
+                            <p class="text-[10px] font-bold text-indigo-900 dark:text-indigo-200 mt-1">1+1 year extended warranty on selected Y Series models with 6/0, 7/0, 8/0 and 10/0 schemes. Validity shown in the supplied sheet: 30 Sep 2026.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-rose-50 dark:bg-rose-950/20 rounded-xl border border-rose-200 dark:border-rose-900/40 p-3">
+                        <p class="text-[8px] font-black uppercase tracking-widest text-rose-700 dark:text-rose-400">IDFC First Bank Special PF</p>
+                        <p class="text-[10px] font-bold text-rose-900 dark:text-rose-200 mt-1">Processing Fee ₹499 for eligible 10/0 and 12/0 schemes, as shown in the supplied Sep 2026 offer sheet. Offer validity: 30 Sep 2026.</p>
+                    </div>
                 </div>
 
                 <div x-show="activeTab === 'paper-finance' && selectedModel?.series !== 'Extender Kit'" class="space-y-5">
@@ -1017,6 +1179,11 @@
 
                 <!-- V-Shield Content -->
                 <div x-show="activeTab === 'vshield'" class="space-y-4">
+                    <div class="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-xl p-3">
+                        <p class="text-[8px] font-black uppercase tracking-widest text-blue-700 dark:text-blue-400">Sep 2026 V-Shield Plan Price</p>
+                        <p class="text-[10px] font-bold text-slate-800 dark:text-slate-200 mt-1">Cash Sales: SDP 8% of device MOP • CDP 11% of device MOP • EW 6% of device MOP. No PF on SDP & EW. CDP-PF: ₹699 / ₹1,499 / ₹1,999 / ₹3,999 / ₹5,999 / ₹10,999 by device value range.</p>
+                        <p class="text-[9px] text-slate-500 dark:text-slate-400 mt-1">V-Shield finance availability in the supplied sheet: DMI, HDB and TVS.</p>
+                    </div>
 
                     <!-- Standard V-Shield -->
                     <div x-show="!vshieldPro" x-cloak class="space-y-4">
@@ -1044,9 +1211,9 @@
 
                             <!-- SDP 6 Month -->
                             <div class="bg-slate-50 dark:bg-black/30 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                                <span class="inline-flex px-2 py-1 rounded-md bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300 text-[8px] font-black uppercase">SDP (6 MONTH)</span>
+                                <span class="inline-flex px-2 py-1 rounded-md bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300 text-[8px] font-black uppercase">EW (1 YEAR)</span>
                                 <p class="text-xl font-black text-slate-900 dark:text-white mt-3"
-                                   x-text="selectedModel?.mop ? '₹' + Math.round(selectedModel.mop * 0.04).toLocaleString('en-IN') : 'NA'"></p>
+                                   x-text="selectedModel?.mop ? '₹' + Math.round(selectedModel.mop * 0.08).toLocaleString('en-IN') : 'NA'"></p>
                                 <p class="text-[9px] text-slate-500 mt-1">4% of Device MOP</p>
                                 <div class="mt-3 px-3 py-2 rounded-md bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-900/40 text-[9px] font-black text-emerald-700 dark:text-emerald-300">
                                     No Processing Fees
@@ -1055,7 +1222,7 @@
 
                             <!-- Extended Warranty -->
                             <div class="bg-slate-50 dark:bg-black/30 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                                <span class="inline-flex px-2 py-1 rounded-md bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300 text-[8px] font-black uppercase">EXTENDED WARRANTY (1YR)</span>
+                                <span class="inline-flex px-2 py-1 rounded-md bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300 text-[8px] font-black uppercase">SCREEN DAMAGE / SDP (1 YEAR)</span>
                                 <p class="text-xl font-black text-slate-900 dark:text-white mt-3"
                                    x-text="selectedModel?.mop ? '₹' + Math.round(selectedModel.mop * 0.06).toLocaleString('en-IN') : 'NA'"></p>
                                 <p class="text-[9px] text-slate-500 mt-1">6% of Device MOP</p>
@@ -1066,7 +1233,7 @@
 
                             <!-- Screen Damage -->
                             <div class="bg-slate-50 dark:bg-black/30 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                                <span class="inline-flex px-2 py-1 rounded-md bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300 text-[8px] font-black uppercase">SCREEN DAMAGE (1YR)</span>
+                                <span class="inline-flex px-2 py-1 rounded-md bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300 text-[8px] font-black uppercase">SCREEN DAMAGE (1 YEAR)</span>
                                 <p class="text-xl font-black text-slate-900 dark:text-white mt-3"
                                    x-text="selectedModel?.mop ? '₹' + Math.round(selectedModel.mop * 0.08).toLocaleString('en-IN') : 'NA'"></p>
                                 <p class="text-[9px] text-slate-500 mt-1">8% of Device MOP</p>
@@ -1266,6 +1433,17 @@
                 loginPassword: '',
                 loginError: '',
                 loginLoading: false,
+                authMode: 'login',
+                signupName: '',
+                signupEmail: '',
+                signupPassword: '',
+                signupError: '',
+                signupSuccess: '',
+                signupLoading: false,
+                forgotEmail: '',
+                forgotError: '',
+                forgotSuccess: '',
+                forgotLoading: false,
 
                 firebaseSetUser(user) {
                     this.currentUser = user || null;
@@ -1295,6 +1473,80 @@
                         };
                         this.loginError = messages[error?.code] || error?.message || 'Login failed.';
                         this.loginLoading = false;
+                    }
+                },
+
+                async firebaseSignup() {
+                    this.signupError = '';
+                    this.signupSuccess = '';
+                    this.signupLoading = true;
+                    try {
+                        if (!window.omegaFirebaseSignup) throw new Error('Firebase Authentication is not loaded.');
+                        const name = this.signupName.trim();
+                        const email = this.signupEmail.trim().toLowerCase();
+                        if (!name) throw new Error('Please enter your name.');
+                        if (!email) throw new Error('Please enter your email ID.');
+                        if (this.signupPassword.length < 6) throw new Error('Password must be at least 6 characters.');
+
+                        const credential = await window.omegaFirebaseSignup(name, email, this.signupPassword);
+
+                        // Log the signup request to Google Sheets / Drive through Apps Script.
+                        if (window.OMEGA_SIGNUP_SHEET_URL &&
+                            !window.OMEGA_SIGNUP_SHEET_URL.includes('PASTE_GOOGLE_APPS_SCRIPT')) {
+                            try {
+                                await fetch(window.OMEGA_SIGNUP_SHEET_URL, {
+                                    method: 'POST',
+                                    mode: 'no-cors',
+                                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                                    body: JSON.stringify({
+                                        name,
+                                        email,
+                                        uid: credential?.user?.uid || '',
+                                        timestamp: new Date().toISOString(),
+                                        status: 'Account Created'
+                                    })
+                                });
+                            } catch (sheetError) {
+                                console.warn('Signup sheet logging failed:', sheetError);
+                            }
+                        }
+
+                        this.signupSuccess = 'Account created successfully. You can continue in the app.';
+                        this.signupPassword = '';
+                    } catch (error) {
+                        const messages = {
+                            'auth/email-already-in-use': 'This email is already registered.',
+                            'auth/invalid-email': 'Please enter a valid email address.',
+                            'auth/weak-password': 'Password is too weak. Use at least 6 characters.',
+                            'auth/network-request-failed': 'Network error. Check your internet connection.'
+                        };
+                        this.signupError = messages[error?.code] || error?.message || 'Account creation failed.';
+                    } finally {
+                        this.signupLoading = false;
+                    }
+                },
+
+                async firebaseForgotPassword() {
+                    this.forgotError = '';
+                    this.forgotSuccess = '';
+                    this.forgotLoading = true;
+                    try {
+                        if (!window.omegaFirebaseForgotPassword) throw new Error('Firebase Authentication is not loaded.');
+                        const email = this.forgotEmail.trim().toLowerCase();
+                        if (!email) throw new Error('Please enter your email ID.');
+                        await window.omegaFirebaseForgotPassword(email);
+
+                        // Firebase sends a secure reset link. The existing password is never exposed.
+                        this.forgotSuccess = 'If this email is registered, a password reset link has been sent to it.';
+                    } catch (error) {
+                        const messages = {
+                            'auth/invalid-email': 'Please enter a valid email address.',
+                            'auth/user-not-found': 'If this email is registered, a reset email will be sent.',
+                            'auth/network-request-failed': 'Network error. Check your internet connection.'
+                        };
+                        this.forgotError = messages[error?.code] || error?.message || 'Password reset could not be completed.';
+                    } finally {
+                        this.forgotLoading = false;
                     }
                 },
 
@@ -1781,6 +2033,40 @@
                     "Y05": { series: "Y Series", name: "Y05", tagline: "It's My Style", price: "14,999", colors: ["Champagne Gold", "Midnight Blue"], cameraTitle: "Perfect Shot", design: ["6.74-inch HD+ HALO FullView display (1600×720)", "120Hz refresh, Eye Protective Display, 1200 nits and IP65", "Face Access and military-grade shock-resistance durability", "8.39mm / 209g", "Available Colors: Champagne Gold | Midnight Blue"], camera: ["8MP main camera (f/2.0) + 5MP front camera (f/2.2)", "Night Mode, HDR and Live Photo", "4-level adjustable flashlight, AI Erase, AI Photo Enhance and AI Document"], performance: ["1.8GHz Unisoc T7225 octa-core, 12nm", "4GB + 64GB + 4GB Extended RAM", "2TB expandable + OTG", "Android 16 / OriginOS 6; 200% Audio Booster", "6500mAh battery; 15W charger and reverse charging"] },
                     "T5 Pro 5G": { series: "T Series", name: "T5 Pro 5G", tagline: "Get Set Turbo", price: "39,999", colors: ["Glacier Blue", "Cosmic Black"], cameraTitle: "Photography", design: ["6.83-inch 1.5K AMOLED (2800×1260) with HDR10+", "In-display fingerprint and Widevine L1", "144Hz refresh, 5000 nits, 2000 nits HBM, 1.07 billion colors and IP68–IP69", "8.25mm / 213g", "Available Colors: Glacier Blue | Cosmic Black"], camera: ["50MP Sony IMX882 OIS main (f/1.79) + 2MP bokeh (f/2.4)", "32MP selfie (f/2.0)", "Aura Screen Light, Super Night Selfie and Dual View Video", "4K, AI Image Expander, AI Erase, AI Photo Enhance, Multifocal Portrait and Food Mode"], performance: ["2.7GHz Snapdragon 7 Gen 4, 4nm + Adreno 722 GPU", "8GB/12GB LPDDR4X + 128GB/256GB UFS 3.1 + Extended RAM 3.0", "9020mAh battery; 90W FlashCharge", "Android 16 / OriginOS 6; Bluetooth 5.4 and dual-mode 5G", "Bypass charging, dual stereo speakers, AI SuperLink, IR Blaster and AI tools"] },
                     "T5x 5G": { series: "T Series", name: "T5x 5G", tagline: "Get Set Turbo", price: "26,999", colors: ["Cyber Green", "Star Silver"], cameraTitle: "Photography", design: ["6.76-inch FHD+ IPS LCD (2344×1080)", "Side fingerprint scanner and Widevine L1 HD streaming certification", "120Hz refresh, 1200 nits and IP68–IP69", "8.39mm / 219g", "Available Colors: Cyber Green | Star Silver"], camera: ["50MP Sony IMX852 main (f/1.8) + 2MP bokeh (f/2.4)", "32MP selfie camera (f/2.05)", "Aura Screen Light, Super Night Selfie, Dual View and 4K video", "Super Night, Dynamic Light, Underwater Photography, AI Erase and AI Photo Enhance"], performance: ["2.6GHz Dimensity 7400 Turbo, 4nm + Mali G-615 MC2 GPU", "6GB/8GB + 128GB/256GB + Extended RAM 3.0", "7200mAh battery; 44W FlashCharge", "Android 16 / OriginOS 6; Bluetooth 5.4 and dual-mode 5G", "Ultra Game Mode, dual stereo speakers and 400% Ultra High Volume"] },
+                },
+
+                // Text-only offer highlights transcribed from the supplied September 2026 offer sheets.
+                offerHighlights: {
+                    'X300 Ultra': {
+                        card: 'CB: up to 15% (CCEMI / FS / UPI) OR NCE up to 24M OR up to 10% Exchange Bonus.',
+                        paper: 'EMI up to 24 months • Down Payment ₹0 • Monthly EMI ₹6,667.',
+                        bajaj: 'EMI up to 24 months • Down Payment ₹0 • Monthly EMI ₹6,667.'
+                    },
+                    'X300 FE Series': {
+                        card: 'CB: 10% (CCEMI / FS / UPI) • NCE up to 9M OR up to 10% Exchange Bonus.',
+                        paper: 'EMI up to 24 months • Down Payment ₹0 • Monthly EMI ₹3,542.',
+                        bajaj: 'EMI 20 months • Down Payment ₹0 • Monthly EMI ₹4,250.'
+                    },
+                    'V70 FE Series': {
+                        card: 'CB: up to 10% (CCEMI / FS / UPI) • NCE up to 6M OR up to 10% Exchange Bonus.',
+                        paper: 'EMI up to 18 months • Down Payment ₹0 • Monthly EMI ₹2,500.',
+                        bajaj: 'EMI up to 15 months • Down Payment ₹0 • Monthly EMI ₹3,000.'
+                    },
+                    'S2 Series': {
+                        card: 'CB: 10% up to ₹3,000 (CCEMI), up to ₹1,500 (FS/UPI) • NCE up to 3M OR up to ₹3,000 Exchange Bonus.',
+                        paper: 'EMI up to 12 months • Down Payment ₹0 • Monthly EMI ₹3,333.',
+                        bajaj: 'EMI up to 12 months • Down Payment ₹0 • Monthly EMI ₹3,333.'
+                    },
+                    'Y51 Pro Series': {
+                        card: 'CB: 10% up to ₹2,000 (CCEMI) • NCE up to 3M.',
+                        paper: 'EMI up to 12 months • Down Payment ₹0 • Monthly EMI ₹2,750.',
+                        bajaj: 'EMI up to 10 months • Down Payment ₹0 • Monthly EMI ₹3,300.'
+                    },
+                    'Y21 Series': {
+                        card: 'CB: ₹1,000 (CCEMI) • NCE up to 3M.',
+                        paper: 'EMI up to 8 months • Down Payment ₹0 • Monthly EMI ₹2,437.',
+                        bajaj: 'EMI 8/0 • Down Payment ₹0 • Monthly EMI ₹2,437.'
+                    }
                 },
 
                 seriesOptions: ['Foldable', 'X Series', 'V Series', 'S Series', 'Y Series', 'T Series', 'Extender Kit'],
